@@ -1,6 +1,9 @@
 import * as d3 from 'd3';
-import { generateFlatData } from './Seeder';
+import * as Seeder from './Seeder';
 import { Data, HierarchyNode } from './Data';
+import * as AddNode from './AddNode';
+import { mount } from 'svelte';
+import App from './App.svelte';
 
 // Constants moved to top-level so all functions can see them
 const width = window.innerWidth;
@@ -13,11 +16,11 @@ const dy = width / 5;
 const duration = 250;
 
 async function renderTree() {
-  const container = document.querySelector<HTMLDivElement>('#app');
+  const container = document.querySelector<HTMLDivElement>('#mindmap-container');
   if (!container) return;
   container.innerHTML = '';
 
-  const flatData = generateFlatData(5, 4);
+  const flatData = Seeder.generateFlatData(5, 4);
   const root = initRoot(flatData);
   const svg = initSvg(container);
   const gLink = initGLink(svg);
@@ -30,7 +33,7 @@ function update(
   root: HierarchyNode, 
   gNode: d3.Selection<SVGGElement, unknown, null, undefined>,
   gLink: d3.Selection<SVGGElement, unknown, null, undefined>,
-  source: HierarchyNode, // Removed event from arguments to simplify recursive calls
+  source: HierarchyNode,
 ) {
   initTreeLayout(root);
   const transition = initTransition(svg, root);
@@ -95,9 +98,7 @@ function initNode(
     .attr("x", d => d._children ? -8 : 8)
     .attr("text-anchor", d => d._children ? "end" : "start")
     .text((d: any) => d.data.label)
-    .attr("stroke", "white")
-    .attr("stroke-width", 3)
-    .attr("paint-order", "stroke");
+    .style("fill", "white");
 
   node.merge(nodeEnter).transition(transition)
     .attr("transform", d => `translate(${d.y},${d.x})`)
@@ -184,8 +185,17 @@ function initGNode(svg: d3.Selection<SVGSVGElement, unknown, null, undefined>) {
     .attr("pointer-events", "all");
 }
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', renderTree);
-} else {
+mount(App, {
+  target: document.getElementById('app')!,
+});
+
+function init() {
   renderTree();
+  AddNode.init();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
 }
