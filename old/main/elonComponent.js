@@ -282,8 +282,8 @@ class ElonComponent {
         return d.data.id;
       })
       .text(function(d) {
-        // return d.data.text; 
-        return d.data.id + ": " + d.data.text;
+        return d.data.text; 
+        // return d.data.id + ": " + d.data.text;
       })
       .call(wrapFn, width, ec);
     }
