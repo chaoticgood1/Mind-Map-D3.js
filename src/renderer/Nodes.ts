@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { Data, HierarchyNode } from '../Data';
-import { circleNode, selectedNode, updateNodes } from '../registry';
+import { selectedNode } from '../registry';
 import { get } from 'svelte/store';
 
 
@@ -10,8 +10,6 @@ export function initNode(
   source: HierarchyNode,
   transition: d3.Transition<SVGSVGElement, unknown, null, undefined>
 ) {
-  console.log("initNode");
-
   const nodes = root.descendants().reverse();
   const node = gNode.selectAll<SVGGElement, HierarchyNode>("g")
     .data(nodes, (d: any) => d.id);
@@ -28,7 +26,7 @@ export function initNode(
     // .attr("fill", d => d._children ? "#555" : "#999")
     .on("click", (_e, d) => {
       d.children = d.children ? undefined : d._children;
-      circleNode.set(d);
+      selectedNode.set(d);
     });
   
   
@@ -40,7 +38,7 @@ export function initNode(
     .text((d: any) => d.data.label)
     .attr("fill", "white")
     .on("click", (_e, d) => {
-      circleNode.set(d);
+      selectedNode.set(d);
     });
 
   const nodeUpdate = node
@@ -49,7 +47,7 @@ export function initNode(
     .attr("transform", d => `translate(${d.y},${d.x})`)
     .attr("fill-opacity", 1)
     .style("font-weight", (d) => {
-      const value = get(circleNode);
+      const value = get(selectedNode);
       if (value === d)
         return "bold";
       return "normal";
@@ -57,17 +55,17 @@ export function initNode(
 
   nodeUpdate.select("text")
     .attr("fill", (d) => {
-      const value = get(circleNode);
+      const value = get(selectedNode);
       if (value === d)
-        return "#FF00FF";
+        return "#00FF00";
       return "#FFFFFF";
     });
 
   nodeUpdate.select("circle")
     .attr("fill", (d) => {
-      const value = get(circleNode);
+      const value = get(selectedNode);
       if (value === d)
-        return "#FF00FF";
+        return "#00FF00";
       return "#FFFFFF";
     });
 

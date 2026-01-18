@@ -5,7 +5,7 @@ import { Data, HierarchyNode } from './Data';
 import * as AddNode from './AddNode';
 import { mount } from 'svelte';
 import App from './App.svelte';
-import { circleNode, selectedNode } from './registry';
+import { selectedNode } from './registry';
 import * as Links from './renderer/Links';
 
 // Constants moved to top-level so all functions can see them
@@ -165,15 +165,9 @@ if (document.readyState === 'loading') {
   init();
 }
 
-circleNode.subscribe((value: any | null) => {
-  if (value !== null) {
-    update(svg, root, gNode, gLink, value);
-  }
-});
-
 selectedNode.subscribe((value: any | null) => {
   if (value !== null) {
-    console.log("Update Selected Node");
+    // console.log("Update Selected Node");
     update(svg, root, gNode, gLink, value);
   }
 });
