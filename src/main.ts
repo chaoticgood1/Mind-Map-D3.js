@@ -3,20 +3,21 @@ import { generateFlatData } from './Seeder';
 import { Data, HierarchyNode } from './Data';
 
 // Constants moved to top-level so all functions can see them
-const width = 928;
+const width = window.innerWidth;
 const marginTop = 20;
 const marginRight = 120;
 const marginBottom = 20;
 const marginLeft = 80;
 const dx = 15;
 const dy = width / 5;
+const duration = 250;
 
 async function renderTree() {
   const container = document.querySelector<HTMLDivElement>('#app');
   if (!container) return;
   container.innerHTML = '';
 
-  const flatData = generateFlatData(4, 4);
+  const flatData = generateFlatData(5, 4);
   const root = initRoot(flatData);
   const svg = initSvg(container);
   const gLink = initGLink(svg);
@@ -31,16 +32,23 @@ function update(
   gLink: d3.Selection<SVGGElement, unknown, null, undefined>,
   source: HierarchyNode, // Removed event from arguments to simplify recursive calls
 ) {
-  const duration = 250;
-  const nodes = root.descendants().reverse();
-  const links = root.links();
+  initTreeLayout(root);
+  const transition = initTransition(svg, root);
 
+  initNode(root, svg, gNode, gLink, source, transition);
+  initLink(root, gLink, source, transition);
+  cacheOldPosition(root);
+}
+
+function initTreeLayout(root: HierarchyNode) {
   const treeLayout = d3.tree<Data>().nodeSize([dx, dy]);
-  const diagonal = d3.linkHorizontal<any, any>().x(d => d.y).y(d => d.x);
-
-  // Run the tree layout
   treeLayout(root);
+}
 
+function initTransition(
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, 
+  root: HierarchyNode
+) {
   let left = root;
   let right = root;
   root.eachBefore(node => {
@@ -50,14 +58,24 @@ function update(
 
   const height = right.x - left.x + marginTop + marginBottom;
 
-  const transition = svg.transition()
+  return svg.transition()
     .duration(duration)
     .attr("height", height)
     .attr("viewBox", [-marginLeft, left.x - marginTop, width, height]);
+}
 
-  // --- Nodes Section ---
+function initNode(
+  root: HierarchyNode,
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, 
+  gNode: d3.Selection<SVGGElement, unknown, null, undefined>,
+  gLink: d3.Selection<SVGGElement, unknown, null, undefined>,
+  source: HierarchyNode,
+  transition: d3.Transition<SVGSVGElement, unknown, null, undefined>
+) {
+  const nodes = root.descendants().reverse();
   const node = gNode.selectAll<SVGGElement, HierarchyNode>("g")
     .data(nodes, (d: any) => d.id);
+
 
   const nodeEnter = node.enter().append("g")
     .attr("transform", _d => `translate(${source.y0 ?? source.y},${source.x0 ?? source.x})`)
@@ -88,11 +106,19 @@ function update(
   node.exit().transition(transition).remove()
     .attr("transform", _d => `translate(${source.y},${source.x})`)
     .attr("fill-opacity", 0);
+}
 
-  // --- Links Section ---
+function initLink(
+  root: HierarchyNode,
+  gLink: d3.Selection<SVGGElement, unknown, null, undefined>,
+  source: HierarchyNode,
+  transition: d3.Transition<SVGSVGElement, unknown, null, undefined>
+) {
+  const links = root.links();
   const link = gLink.selectAll<SVGPathElement, d3.HierarchyLink<Data>>("path")
     .data(links, (d: any) => d.target.id);
 
+  const diagonal = d3.linkHorizontal<any, any>().x(d => d.y).y(d => d.x);
   const linkEnter = link.enter().append("path")
     .attr("d", _d => {
       const o = { x: source.x0 ?? source.x, y: source.y0 ?? source.y };
@@ -106,8 +132,9 @@ function update(
       const o = { x: source.x, y: source.y };
       return diagonal({ source: o, target: o });
     });
+}
 
-  // Stash the old positions for transitions.
+function cacheOldPosition(root: HierarchyNode) {
   root.eachBefore(d => {
     d.x0 = d.x;
     d.y0 = d.y;
@@ -134,7 +161,6 @@ function initRoot(flatData: Data[]) {
 
   return root;
 }
-
 
 function initSvg(container: HTMLDivElement) {
   return d3.select(container).append("svg")
