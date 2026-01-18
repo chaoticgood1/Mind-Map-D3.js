@@ -21,7 +21,7 @@ function add() {
 }
 
 
-const unsubscribe = addNode.subscribe((value) => {
+addNode.subscribe((value) => {
   if (value === true) {
     console.log("Add Node mode activated in D3!");
     // Trigger your D3 logic here

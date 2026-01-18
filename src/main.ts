@@ -1,9 +1,11 @@
 import * as d3 from 'd3';
 import * as Seeder from './Seeder';
+import * as NodeManager from './renderer/NodeManager';
 import { Data, HierarchyNode } from './Data';
 import * as AddNode from './AddNode';
 import { mount } from 'svelte';
 import App from './App.svelte';
+import { circleNode, selectedNode, updateNodes } from './registry';
 
 // Constants moved to top-level so all functions can see them
 const width = window.innerWidth;
@@ -68,7 +70,7 @@ function update(
   initTreeLayout(root);
   const transition = initTransition(svg, root);
 
-  initNode(root, svg, gNode, gLink, source, transition);
+  NodeManager.initNode(root, svg, gNode, gLink, source, transition);
   initLink(root, gLink, source, transition);
   cacheOldPosition(root);
 }
@@ -95,49 +97,6 @@ function initTransition(
     .duration(duration)
     .attr("height", height)
     .attr("viewBox", [-marginLeft, left.x - marginTop, width, height]);
-}
-
-function initNode(
-  root: HierarchyNode,
-  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, 
-  gNode: d3.Selection<SVGGElement, unknown, null, undefined>,
-  gLink: d3.Selection<SVGGElement, unknown, null, undefined>,
-  source: HierarchyNode,
-  transition: d3.Transition<SVGSVGElement, unknown, null, undefined>
-) {
-  const nodes = root.descendants().reverse();
-  const node = gNode.selectAll<SVGGElement, HierarchyNode>("g")
-    .data(nodes, (d: any) => d.id);
-
-
-  const nodeEnter = node.enter().append("g")
-    .attr("transform", _d => `translate(${source.y0 ?? source.y},${source.x0 ?? source.x})`)
-    .attr("fill-opacity", 0)
-    .on("click", (_e, d) => {
-      d.children = d.children ? undefined : d._children;
-      // FIX: Pass all required references back into the update function
-      update(svg, root, gNode, gLink, d);
-    });
-
-  nodeEnter.append("circle")
-    .attr("r", 8)
-    .attr("fill", d => d._children ? "#555" : "#999");
-
-  nodeEnter.append("text")
-    .attr("dy", "0.31em")
-    .attr("x", 10)
-    // .attr("x", d => d._children ? -8 : 8)
-    // .attr("text-anchor", d => d._children ? "end" : "start")
-    .text((d: any) => d.data.label)
-    .style("fill", "white");
-
-  node.merge(nodeEnter).transition(transition)
-    .attr("transform", d => `translate(${d.y},${d.x})`)
-    .attr("fill-opacity", 1);
-
-  node.exit().transition(transition).remove()
-    .attr("transform", _d => `translate(${source.y},${source.x})`)
-    .attr("fill-opacity", 0);
 }
 
 function initLink(
@@ -230,3 +189,11 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+
+
+circleNode.subscribe((value: any | null) => {
+  if (value !== null) {
+    update(svg, root, gNode, gLink, value);
+  }
+});
