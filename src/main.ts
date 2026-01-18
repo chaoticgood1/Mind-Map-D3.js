@@ -11,38 +11,16 @@ const marginLeft = 80;
 const dx = 15;
 const dy = width / 5;
 
-// Shared D3 generators
-const treeLayout = d3.tree<Data>().nodeSize([dx, dy]);
-const diagonal = d3.linkHorizontal<any, any>().x(d => d.y).y(d => d.x);
-
 async function renderTree() {
   const container = document.querySelector<HTMLDivElement>('#app');
   if (!container) return;
   container.innerHTML = '';
 
   const flatData = generateFlatData(4, 4);
-
-  const stratify = d3.stratify<Data>()
-    .id(d => d.id.toString())
-    .parentId(d => d.parentId?.toString() || null);
-
-  const root = stratify(flatData) as unknown as HierarchyNode;
-
+  const root = initRoot(flatData);
   const svg = initSvg(container);
   const gLink = initGLink(svg);
   const gNode = initGNode(svg);
-
-  // Initialize positions
-  root.x0 = dx / 2;
-  root.y0 = 0;
-  
-  root.descendants().forEach((d: any) => {
-    d._children = d.children;
-    // Everything stays unfolded because the line below is commented out
-    // if (d.depth > 0) d.children = undefined; 
-  });
-
-  // Pass all required refs to update, and use 'root' as the initial source
   update(svg, root, gNode, gLink, root);
 }
 
@@ -56,6 +34,9 @@ function update(
   const duration = 250;
   const nodes = root.descendants().reverse();
   const links = root.links();
+
+  const treeLayout = d3.tree<Data>().nodeSize([dx, dy]);
+  const diagonal = d3.linkHorizontal<any, any>().x(d => d.y).y(d => d.x);
 
   // Run the tree layout
   treeLayout(root);
@@ -133,7 +114,28 @@ function update(
   });
 }
 
-// Helpers
+
+
+
+
+function initRoot(flatData: Data[]) {
+  const stratify = d3.stratify<Data>()
+  .id(d => d.id.toString())
+  .parentId(d => d.parentId?.toString() || null);
+
+  const root = stratify(flatData) as unknown as HierarchyNode;
+
+  root.x0 = dx / 2;
+  root.y0 = 0;
+
+  root.descendants().forEach((d: any) => {
+    d._children = d.children;
+  });
+
+  return root;
+}
+
+
 function initSvg(container: HTMLDivElement) {
   return d3.select(container).append("svg")
     .attr("width", width)
