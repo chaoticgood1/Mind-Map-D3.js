@@ -7,6 +7,7 @@ import App from './App.svelte';
 
 // Constants moved to top-level so all functions can see them
 const width = window.innerWidth;
+const height = window.innerHeight;
 const marginTop = 20;
 const marginRight = 120;
 const marginBottom = 20;
@@ -23,10 +24,32 @@ async function renderTree() {
   const flatData = Seeder.generateFlatData(5, 4);
   const root = initRoot(flatData);
   const svg = initSvg(container);
-  const gLink = initGLink(svg);
-  const gNode = initGNode(svg);
+  
+  const gView = svg.append("g").attr("class", "view-container");
+  const gLink = initGLink(gView);
+  const gNode = initGNode(gView);
+  initZoom(svg, gView);
+
   update(svg, root, gNode, gLink, root);
 }
+
+function initZoom(
+  svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, 
+  gView: d3.Selection<SVGGElement, unknown, null, undefined>
+) {
+  const zoom = d3.zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.5, 3]) // Limit zoom in/out (0.5x to 3x)
+    .on("zoom", (event) => {
+      // Apply the transform (drag/zoom) to our master container
+      gView.attr("transform", event.transform);
+    });
+
+  svg.call(zoom as any);
+  
+  // Optional: Start the tree centered
+  svg.call(zoom.transform as any, d3.zoomIdentity.translate(marginLeft, marginTop));
+}
+
 
 function update(
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
@@ -167,7 +190,7 @@ function initSvg(container: HTMLDivElement) {
   return d3.select(container).append("svg")
     .attr("width", width)
     .style("max-width", "100%")
-    .style("height", "auto")
+    .style("height", height)
     .style("font", "12px sans-serif")
     .style("user-select", "none");
 }

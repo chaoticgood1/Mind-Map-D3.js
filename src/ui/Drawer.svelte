@@ -4,14 +4,7 @@
 </script>
 
 {#if $drawerOpen}
-  <div
-    transition:fade={{ duration: 200 }}
-    class="fixed inset-0 z-40"
-    on:keydown={(e) => { if (e.key === 'Escape') drawerOpen.set(false); }}
-    role="button"
-    tabindex="0"
-    aria-label="Close drawer"
-  ></div>
+
 
   <div
     transition:fly={{ x: 320, duration: 300 }}
