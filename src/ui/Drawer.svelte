@@ -1,13 +1,12 @@
 <script lang="ts">
   import { fly, fade } from 'svelte/transition';
-  import { drawerOpen } from '../registry';
+  import { drawerOpen, addNode } from '../registry';
 </script>
 
 {#if $drawerOpen}
   <div
     transition:fade={{ duration: 200 }}
-    class="fixed inset-0 bg-black/50 backdrop-blur-sm z-40"
-    on:click={() => drawerOpen.set(false)}
+    class="fixed inset-0 z-40"
     on:keydown={(e) => { if (e.key === 'Escape') drawerOpen.set(false); }}
     role="button"
     tabindex="0"
@@ -33,22 +32,15 @@
       </div>
 
       <div class="space-y-4">
-        <div class="p-4 bg-white border border-slate-200 rounded-lg">
-          <h3 class="text-lg font-semibold mb-3 text-slate-800">
-            Navigation
-          </h3>
-          <div class="grid grid-cols-1 gap-2">
-            <button class="px-3 py-2 text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-md transition-colors flex items-center gap-2">📊 View Full Tree</button>
-            <button class="px-3 py-2 text-sm bg-blue-100 hover:bg-blue-200 text-blue-800 rounded-md transition-colors flex items-center gap-2">🔍 Zoom to Fit</button>
-          </div>
-        </div>
 
         <div class="p-4 bg-white border border-slate-200 rounded-lg">
           <h3 class="text-lg font-semibold mb-3 text-slate-800">
             Actions
           </h3>
           <div class="grid grid-cols-1 gap-2">
-            <button class="px-3 py-2 text-sm bg-green-100 hover:bg-green-200 text-green-800 rounded-md transition-colors flex items-center gap-2">➕ Add Node</button>
+            <button class="px-3 py-2 text-sm bg-green-100 hover:bg-green-200 text-green-800 rounded-md transition-colors flex items-center gap-2"
+            on:click={() => addNode.set(true)}>➕ Add Node
+            </button>
             <button class="px-3 py-2 text-sm bg-red-100 hover:bg-red-200 text-red-800 rounded-md transition-colors flex items-center gap-2">🗑️ Delete Node</button>
           </div>
         </div>
