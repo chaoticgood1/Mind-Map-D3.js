@@ -1,6 +1,6 @@
 
 
-import { drawerOpen, addNode } from './registry';
+import { addNode } from './registry';
 
 export function init() {
   document.onkeydown = function(ev) {

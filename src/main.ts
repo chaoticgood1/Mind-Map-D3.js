@@ -1,11 +1,12 @@
 import * as d3 from 'd3';
 import * as Seeder from './Seeder';
-import * as NodeManager from './renderer/NodeManager';
+import * as Nodes from './renderer/Nodes';
 import { Data, HierarchyNode } from './Data';
 import * as AddNode from './AddNode';
 import { mount } from 'svelte';
 import App from './App.svelte';
-import { circleNode, selectedNode, updateNodes } from './registry';
+import { circleNode, selectedNode } from './registry';
+import * as Links from './renderer/Links';
 
 // Constants moved to top-level so all functions can see them
 const width = window.innerWidth;
@@ -70,8 +71,8 @@ function update(
   initTreeLayout(root);
   const transition = initTransition(svg, root);
 
-  NodeManager.initNode(root, svg, gNode, gLink, source, transition);
-  initLink(root, gLink, source, transition);
+  Nodes.initNode(root, gNode, source, transition);
+  Links.init(root, gLink, source, transition);
   cacheOldPosition(root);
 }
 
@@ -97,32 +98,6 @@ function initTransition(
     .duration(duration)
     .attr("height", height)
     .attr("viewBox", [-marginLeft, left.x - marginTop, width, height]);
-}
-
-function initLink(
-  root: HierarchyNode,
-  gLink: d3.Selection<SVGGElement, unknown, null, undefined>,
-  source: HierarchyNode,
-  transition: d3.Transition<SVGSVGElement, unknown, null, undefined>
-) {
-  const links = root.links();
-  const link = gLink.selectAll<SVGPathElement, d3.HierarchyLink<Data>>("path")
-    .data(links, (d: any) => d.target.id);
-
-  const diagonal = d3.linkHorizontal<any, any>().x(d => d.y).y(d => d.x);
-  const linkEnter = link.enter().append("path")
-    .attr("d", _d => {
-      const o = { x: source.x0 ?? source.x, y: source.y0 ?? source.y };
-      return diagonal({ source: o, target: o });
-    });
-
-  link.merge(linkEnter).transition(transition).attr("d", diagonal as any);
-
-  link.exit().transition(transition).remove()
-    .attr("d", _d => {
-      const o = { x: source.x, y: source.y };
-      return diagonal({ source: o, target: o });
-    });
 }
 
 function cacheOldPosition(root: HierarchyNode) {
@@ -190,10 +165,15 @@ if (document.readyState === 'loading') {
   init();
 }
 
-
-
 circleNode.subscribe((value: any | null) => {
   if (value !== null) {
+    update(svg, root, gNode, gLink, value);
+  }
+});
+
+selectedNode.subscribe((value: any | null) => {
+  if (value !== null) {
+    console.log("Update Selected Node");
     update(svg, root, gNode, gLink, value);
   }
 });
