@@ -9,7 +9,7 @@
   <div
     transition:fly={{ x: 320, duration: 300 }}
     class="fixed right-0 top-0 h-full w-80
-           bg-white
+           bg-gray-600/80
            border-l border-gray-200
            shadow-2xl overflow-y-auto z-50"
   >
@@ -26,7 +26,7 @@
 
       <div class="space-y-4">
 
-        <div class="p-4 bg-white border border-slate-200 rounded-lg">
+        <div class="p-4 bg-blue-500/20 border border-slate-200 rounded-lg">
           <h3 class="text-lg font-semibold mb-3 text-slate-800">
             Actions
           </h3>
@@ -39,7 +39,7 @@
         </div>
       </div>
 
-      <div class="mt-6 p-3 bg-slate-100 rounded text-sm text-slate-600">
+      <div class="mt-6 p-3 bg-slate-400 rounded text-sm text-slate-600">
         <p><strong>Tip:</strong> Press <kbd class="kbd bg-white border-slate-300 text-slate-900">Tab</kbd> to toggle this drawer</p>
       </div>
     </div>

@@ -12,9 +12,16 @@ const marginTop = 20;
 const marginRight = 120;
 const marginBottom = 20;
 const marginLeft = 80;
-const dx = 15;
-const dy = width / 5;
+const verticalSpacing = 150;   
+const horizontalSpacing = 20;
 const duration = 250;
+
+
+let root: HierarchyNode;
+let svg: d3.Selection<SVGSVGElement, unknown, null, undefined>;
+let gView: d3.Selection<SVGGElement, unknown, null, undefined>;
+let gLink: d3.Selection<SVGGElement, unknown, null, undefined>;
+let gNode: d3.Selection<SVGGElement, unknown, null, undefined>;
 
 async function renderTree() {
   const container = document.querySelector<HTMLDivElement>('#mindmap-container');
@@ -22,12 +29,12 @@ async function renderTree() {
   container.innerHTML = '';
 
   const flatData = Seeder.generateFlatData(5, 4);
-  const root = initRoot(flatData);
-  const svg = initSvg(container);
+  root = initRoot(flatData);
+  svg = initSvg(container);
   
-  const gView = svg.append("g").attr("class", "view-container");
-  const gLink = initGLink(gView);
-  const gNode = initGNode(gView);
+  gView = svg.append("g").attr("class", "view-container");
+  gLink = initGLink(gView);
+  gNode = initGNode(gView);
   initZoom(svg, gView);
 
   update(svg, root, gNode, gLink, root);
@@ -67,7 +74,7 @@ function update(
 }
 
 function initTreeLayout(root: HierarchyNode) {
-  const treeLayout = d3.tree<Data>().nodeSize([dx, dy]);
+  const treeLayout = d3.tree<Data>().nodeSize([horizontalSpacing, verticalSpacing]);
   treeLayout(root);
 }
 
@@ -113,13 +120,14 @@ function initNode(
     });
 
   nodeEnter.append("circle")
-    .attr("r", 4)
+    .attr("r", 8)
     .attr("fill", d => d._children ? "#555" : "#999");
 
   nodeEnter.append("text")
     .attr("dy", "0.31em")
-    .attr("x", d => d._children ? -8 : 8)
-    .attr("text-anchor", d => d._children ? "end" : "start")
+    .attr("x", 10)
+    // .attr("x", d => d._children ? -8 : 8)
+    // .attr("text-anchor", d => d._children ? "end" : "start")
     .text((d: any) => d.data.label)
     .style("fill", "white");
 
@@ -176,7 +184,7 @@ function initRoot(flatData: Data[]) {
 
   const root = stratify(flatData) as unknown as HierarchyNode;
 
-  root.x0 = dx / 2;
+  root.x0 = 0;
   root.y0 = 0;
 
   root.descendants().forEach((d: any) => {
