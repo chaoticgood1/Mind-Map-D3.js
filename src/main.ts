@@ -4,6 +4,7 @@ import * as Nodes from './renderer/Nodes';
 import { Data, HierarchyNode } from './Data';
 import * as AddNode from './AddNode';
 import * as SaveManager from './file/SaveManager';
+import * as Open from './file/Open';
 import { mount } from 'svelte';
 import App from './App.svelte';
 import { nodeData, selectedNode } from './registry';
@@ -185,6 +186,7 @@ function init() {
   renderTree();
   AddNode.init();
   SaveManager.init();
+  Open.init();
 }
 
 if (document.readyState === 'loading') {
