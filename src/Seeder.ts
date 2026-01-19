@@ -4,35 +4,54 @@ export function generateFlatData(maxDepth: number, maxChildren: number = 5): Dat
   const flatList: Data[] = [];
   let currentId = 1; // Scoped to this function call
 
-  function spawn(parentId: number, depth: number) {
-    if (depth >= maxDepth) return;
+  function spawn(depth: number): string[] {
+    if (depth >= maxDepth) return [];
 
     // Randomize children (at least 1 if it's the root to ensure a tree)
-    const numChildren = depth === 1 ? 
-        Math.max(1, Math.floor(Math.random() * maxChildren)) : 
+    const numChildren = depth === 1 ?
+        Math.max(1, Math.floor(Math.random() * maxChildren)) :
         Math.floor(Math.random() * (maxChildren + 1));
+
+    const childrenIds: string[] = [];
 
     for (let i = 0; i < numChildren; i++) {
       const id = ++currentId; // Increment immediately
-      
+      const childId = id.toString();
+
       flatList.push({
-        id: id,
+        id: childId,
         label: `Node ${id} (D${depth})`,
-        parentId: parentId
+        childrenIds: []
       });
 
-      spawn(id, depth + 1);
+      childrenIds.push(childId);
+      // Recursively get grandchildren and set them on the child
+      const grandChildren = spawn(depth + 1);
+      if (grandChildren.length > 0) {
+        const childNode = flatList.find(node => node.id === childId);
+        if (childNode) {
+          childNode.childrenIds = grandChildren;
+        }
+      }
     }
+
+    return childrenIds;
   }
 
   // Add the Root
-  const rootId = 1;
+  const rootId = "1";
   flatList.push({
     id: rootId,
     label: "Root Node",
-    parentId: null as any // Type cast for your interface if needed
+    childrenIds: []
   });
 
-  spawn(rootId, 1);
+  // Generate children for root and set them on root
+  const rootChildren = spawn(1);
+  const rootNode = flatList.find(node => node.id === rootId);
+  if (rootNode) {
+    rootNode.childrenIds = rootChildren;
+  }
+
   return flatList;
 }

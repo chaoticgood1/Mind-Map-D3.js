@@ -3,19 +3,20 @@ import * as Seeder from './Seeder';
 import * as Nodes from './renderer/Nodes';
 import { Data, HierarchyNode } from './Data';
 import * as AddNode from './AddNode';
+import * as SaveManager from './file/SaveManager';
 import { mount } from 'svelte';
 import App from './App.svelte';
-import { selectedNode } from './registry';
+import { nodeData, selectedNode } from './registry';
+import { get } from 'svelte/store';
 import * as Links from './renderer/Links';
 
 // Constants moved to top-level so all functions can see them
 const width = window.innerWidth;
 const height = window.innerHeight;
 const marginTop = 20;
-const marginRight = 120;
 const marginBottom = 20;
 const marginLeft = 80;
-const verticalSpacing = 150;   
+const verticalSpacing = 150;
 const horizontalSpacing = 20;
 const duration = 250;
 
@@ -31,15 +32,20 @@ async function renderTree() {
   if (!container) return;
   container.innerHTML = '';
 
-  const flatData = Seeder.generateFlatData(5, 4);
-  root = initRoot(flatData);
   svg = initSvg(container);
-  
   gView = svg.append("g").attr("class", "view-container");
   gLink = initGLink(gView);
   gNode = initGNode(gView);
   initZoom(svg, gView);
 
+
+  let flatData = get(nodeData);
+  if (flatData.length === 0) {
+    flatData = Seeder.generateFlatData(5, 4);
+    console.log(flatData);
+    nodeData.set(flatData);
+  }
+  root = initRoot(flatData);
   update(svg, root, gNode, gLink, root);
 }
 
@@ -60,6 +66,47 @@ function initZoom(
   svg.call(zoom.transform as any, d3.zoomIdentity.translate(marginLeft, marginTop));
 }
 
+// Temporary type for D3 stratify (includes both childrenIds and parentId)
+type DataWithParentId = Data & { parentId: string | null };
+
+function initRoot(flatData: Data[]) {
+  // Convert childrenIds structure to parentId structure for D3 stratify
+  const dataWithParentId: DataWithParentId[] = flatData.map(node => ({
+    ...node,
+    parentId: null as string | null
+  }));
+
+  // Build parent-child relationships
+  const parentMap = new Map<string, string>(); // childId -> parentId
+
+  flatData.forEach(node => {
+    node.childrenIds.forEach(childId => {
+      parentMap.set(childId, node.id);
+    });
+  });
+
+  // Set parentId on each node
+  dataWithParentId.forEach(node => {
+    const parentId = parentMap.get(node.id);
+    if (parentId) {
+      node.parentId = parentId;
+    }
+  });
+
+  const stratify = d3.stratify<DataWithParentId>()
+    .id(d => d.id.toString())
+    .parentId(d => d.parentId?.toString() || null);
+
+  const root = stratify(dataWithParentId) as unknown as HierarchyNode;
+  root.x0 = 0;
+  root.y0 = 0;
+
+  root.descendants().forEach((d: any) => {
+    d._children = d.children;
+  });
+
+  return root;
+}
 
 function update(
   svg: d3.Selection<SVGSVGElement, unknown, null, undefined>,
@@ -97,7 +144,7 @@ function initTransition(
   return svg.transition()
     .duration(duration)
     .attr("height", height)
-    .attr("viewBox", [-marginLeft, left.x - marginTop, width, height]);
+    .attr("viewBox", `${-marginLeft} ${left.x - marginTop} ${width} ${height}`);
 }
 
 function cacheOldPosition(root: HierarchyNode) {
@@ -108,26 +155,6 @@ function cacheOldPosition(root: HierarchyNode) {
 }
 
 
-
-
-
-function initRoot(flatData: Data[]) {
-  const stratify = d3.stratify<Data>()
-  .id(d => d.id.toString())
-  .parentId(d => d.parentId?.toString() || null);
-
-  const root = stratify(flatData) as unknown as HierarchyNode;
-
-  root.x0 = 0;
-  root.y0 = 0;
-
-  root.descendants().forEach((d: any) => {
-    d._children = d.children;
-  });
-
-  return root;
-}
-
 function initSvg(container: HTMLDivElement) {
   return d3.select(container).append("svg")
     .attr("width", width)
@@ -137,14 +164,14 @@ function initSvg(container: HTMLDivElement) {
     .style("user-select", "none");
 }
 
-function initGLink(svg: d3.Selection<SVGSVGElement, unknown, null, undefined>) {
+function initGLink(svg: d3.Selection<SVGGElement, unknown, null, undefined>) {
   return svg.append("g")
     .attr("fill", "none")
     .attr("stroke", "#ccc")
     .attr("stroke-width", 1.5);
 }
 
-function initGNode(svg: d3.Selection<SVGSVGElement, unknown, null, undefined>) {
+function initGNode(svg: d3.Selection<SVGGElement, unknown, null, undefined>) {
   return svg.append("g")
     .attr("cursor", "pointer")
     .attr("pointer-events", "all");
@@ -157,6 +184,7 @@ mount(App, {
 function init() {
   renderTree();
   AddNode.init();
+  SaveManager.init();
 }
 
 if (document.readyState === 'loading') {
@@ -169,5 +197,13 @@ selectedNode.subscribe((value: any | null) => {
   if (value !== null) {
     // console.log("Update Selected Node");
     update(svg, root, gNode, gLink, value);
+  }
+});
+
+nodeData.subscribe(() => {
+  if (root && svg && gNode && gLink) {
+    const flatData = get(nodeData);
+    root = initRoot(flatData);
+    update(svg, root, gNode, gLink, root);
   }
 });

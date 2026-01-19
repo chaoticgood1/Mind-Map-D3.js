@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 export interface Data {
   id: string;
   label: string;
-  parentId: string | null;
+  childrenIds: string[];
 }
 
 // This interface represents the node after D3 processes it
