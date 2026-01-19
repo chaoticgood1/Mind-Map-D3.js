@@ -41,6 +41,7 @@ function addNode() {
       const newData: Data = {
         id: newNodeId,
         label: inputElement.value.trim(),
+        body: '',
         childrenIds: []
       };
 

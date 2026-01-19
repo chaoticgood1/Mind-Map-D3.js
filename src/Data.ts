@@ -3,6 +3,7 @@ import * as d3 from 'd3';
 export interface Data {
   id: string;
   label: string;
+  body: string;
   childrenIds: string[];
 }
 

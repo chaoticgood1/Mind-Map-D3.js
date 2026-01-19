@@ -21,6 +21,7 @@ export function generateFlatData(maxDepth: number, maxChildren: number = 5): Dat
       flatList.push({
         id: childId,
         label: `Node ${id} (D${depth})`,
+        body: '',
         childrenIds: []
       });
 
@@ -43,6 +44,7 @@ export function generateFlatData(maxDepth: number, maxChildren: number = 5): Dat
   flatList.push({
     id: rootId,
     label: "Root Node",
+    body: '',
     childrenIds: []
   });
 

@@ -56,6 +56,13 @@ function initZoom(
 ) {
   const zoom = d3.zoom<SVGSVGElement, unknown>()
     .scaleExtent([0.5, 3]) // Limit zoom in/out (0.5x to 3x)
+    .filter((event) => {
+      // Prevent dblclick zoom on nodes
+      if (event.type === 'dblclick') {
+        return !event.target.closest('g.node-group');
+      }
+      return !event.ctrlKey && !event.button;
+    })
     .on("zoom", (event) => {
       // Apply the transform (drag/zoom) to our master container
       gView.attr("transform", event.transform);
@@ -122,6 +129,12 @@ function update(
   Nodes.initNode(root, gNode, source, transition);
   Links.init(root, gLink, source, transition);
   cacheOldPosition(root);
+}
+
+export function refreshTree() {
+  if (root && svg && gNode && gLink) {
+    update(svg, root, gNode, gLink, root);
+  }
 }
 
 function initTreeLayout(root: HierarchyNode) {
@@ -192,6 +205,7 @@ function init() {
   import('./components/DeleteNode').then(module => module.init());
   import('./components/Copy').then(module => module.init());
   import('./components/Paste').then(module => module.init());
+  import('./components/Edit').then(module => module.init());
 }
 
 if (document.readyState === 'loading') {

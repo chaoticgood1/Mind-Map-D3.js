@@ -8,7 +8,7 @@ export function initNode(
   root: HierarchyNode,
   gNode: d3.Selection<SVGGElement, unknown, null, undefined>,
   source: HierarchyNode,
-  transition: d3.Transition<SVGSVGElement, unknown, null, undefined>
+  transition: d3.Transition<any, any, any, any>
 ) {
   const nodes = root.descendants().reverse();
   const node = gNode.selectAll<SVGGElement, HierarchyNode>("g")
@@ -17,6 +17,7 @@ export function initNode(
   const nodeEnter = node
     .enter()
     .append("g")
+    .attr("class", "node-group")
     .attr("transform", _d => `translate(${source.y0 ?? source.y},${source.x0 ?? source.x})`)
     .attr("fill-opacity", 0)
     
@@ -27,7 +28,12 @@ export function initNode(
     .on("click", (_e, d) => {
       d.children = d.children ? undefined : d._children;
       selectedNode.set(d);
-    });
+      import('../components/Edit').then(module => {
+        if ('startEdit' in module && typeof module.startEdit === 'function') {
+          module.startEdit();
+        }
+      });
+    })
   
   
   nodeEnter.append("text")
@@ -39,7 +45,12 @@ export function initNode(
     .attr("fill", "white")
     .on("click", (_e, d) => {
       selectedNode.set(d);
-    });
+      import('../components/Edit').then(module => {
+        if ('startEdit' in module && typeof module.startEdit === 'function') {
+          module.startEdit();
+        }
+      });
+    })
 
   const nodeUpdate = node
     .merge(nodeEnter)
@@ -54,6 +65,7 @@ export function initNode(
     })
 
   nodeUpdate.select("text")
+    .text((d: any) => d.data.label)
     .attr("fill", (d) => {
       const value = get(selectedNode);
       if (value === d)

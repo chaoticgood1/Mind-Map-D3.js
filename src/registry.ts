@@ -9,3 +9,5 @@ export const selectedNode = writable<HierarchyNode | undefined>(undefined);
 export const nodeData = writable<Data[]>([]);
 
 export const copiedData = writable<Data[]>([]);
+
+export const isEditingNode = writable<boolean>(false);
