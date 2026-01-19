@@ -187,6 +187,11 @@ function init() {
   AddNode.init();
   SaveManager.init();
   Open.init();
+  
+  // New feature initialization
+  import('./components/DeleteNode').then(module => module.init());
+  import('./components/Copy').then(module => module.init());
+  import('./components/Paste').then(module => module.init());
 }
 
 if (document.readyState === 'loading') {
@@ -195,8 +200,10 @@ if (document.readyState === 'loading') {
   init();
 }
 
-selectedNode.subscribe((value: any | null) => {
-  if (value !== null) {
+let isDataUpdating = false;
+
+selectedNode.subscribe((value: any | undefined) => {
+  if (value !== undefined && !isDataUpdating) {
     // console.log("Update Selected Node");
     update(svg, root, gNode, gLink, value);
   }
@@ -204,8 +211,25 @@ selectedNode.subscribe((value: any | null) => {
 
 nodeData.subscribe(() => {
   if (root && svg && gNode && gLink) {
+    isDataUpdating = true;
     const flatData = get(nodeData);
     root = initRoot(flatData);
-    update(svg, root, gNode, gLink, root);
+    
+    // Maintain the current selection if it still exists in the new root
+    const currentSelection = get(selectedNode);
+    let source = root; // Default source for transition
+    
+    if (currentSelection) {
+      const found = root.descendants().find(d => d.id === currentSelection.id);
+      if (found) {
+        source = found;
+        // Update the selectedNode store with the NEW hierarchy node object
+        // so that (get(selectedNode) === d) in Nodes.ts works!
+        selectedNode.set(found);
+      }
+    }
+    
+    update(svg, root, gNode, gLink, source);
+    isDataUpdating = false;
   }
 });

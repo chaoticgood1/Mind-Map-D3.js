@@ -21,7 +21,10 @@ export function init(
 
   link.merge(linkEnter).transition(transition).attr("d", diagonal as any);
 
-  link.exit().transition(transition).remove()
+  link
+    .exit()
+    .transition(transition)
+    .remove()
     .attr("d", _d => {
       const o = { x: source.x, y: source.y };
       return diagonal({ source: o, target: o });

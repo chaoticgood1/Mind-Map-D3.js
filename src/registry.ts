@@ -7,3 +7,5 @@ export const preAddNode = writable(false);
 export const selectedNode = writable<HierarchyNode | undefined>(undefined);
 
 export const nodeData = writable<Data[]>([]);
+
+export const copiedData = writable<Data[]>([]);

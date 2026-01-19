@@ -74,5 +74,9 @@ export function initNode(
     .transition(transition)
     .remove()
     .attr("transform", _d => `translate(${source.y},${source.x})`)
-    .attr("fill-opacity", 0);
+    .attr("fill-opacity", 0)
+    .on("end", function() {
+      // Clear selection after transition completes for removed nodes
+      selectedNode.set(undefined);
+    });
 }
