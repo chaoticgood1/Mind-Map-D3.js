@@ -25,7 +25,11 @@ export function initNode(
   nodeEnter.append("circle")
     .attr("r", 8)
     // .attr("fill", d => d._children ? "#555" : "#999")
-    .on("click", (_e, d) => {
+    .style("cursor", "grab")
+    .on("click", (event, d) => {
+      // Prevent click if this was part of a drag operation
+      if (event.defaultPrevented) return;
+
       d.children = d.children ? undefined : d._children;
       selectedNode.set(d);
       import('../components/Edit').then(module => {

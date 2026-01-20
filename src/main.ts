@@ -200,12 +200,13 @@ function init() {
   AddNode.init();
   SaveManager.init();
   Open.init();
-  
+
   // New feature initialization
   import('./components/DeleteNode').then(module => module.init());
   import('./components/Copy').then(module => module.init());
   import('./components/Paste').then(module => module.init());
   import('./components/Edit').then(module => module.init());
+  import('./components/DragNode').then(module => module.init());
 }
 
 if (document.readyState === 'loading') {
