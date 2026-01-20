@@ -59,7 +59,7 @@ export function initNode(
   const nodeUpdate = node
     .merge(nodeEnter)
     .transition(transition)
-    .attr("transform", d => `translate(${d.y},${d.x})`)
+    .attr("transform", d => d.isDragging ? null : `translate(${d.y},${d.x})`)
     .attr("fill-opacity", 1)
     .style("font-weight", (d) => {
       const value = get(selectedNode);

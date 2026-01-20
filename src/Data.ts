@@ -12,4 +12,6 @@ export interface HierarchyNode extends d3.HierarchyPointNode<Data> {
   x0?: number;
   y0?: number;
   _children?: this[]; // For collapsing
+  dragStartX?: number; // For drag operations
+  dragStartY?: number; // For drag operations
 }

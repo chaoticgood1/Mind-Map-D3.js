@@ -43,6 +43,8 @@ function dragStarted(event: d3.D3DragEvent<SVGCircleElement, HierarchyNode, Hier
 
   // Change cursor during drag
   d3.select(document.body).style('cursor', 'grabbing');
+
+  console.log("Mouse down")
 }
 
 function dragged(event: d3.D3DragEvent<SVGCircleElement, HierarchyNode, HierarchyNode>, d: HierarchyNode) {
@@ -56,6 +58,8 @@ function dragged(event: d3.D3DragEvent<SVGCircleElement, HierarchyNode, Hierarch
   // Update the node group position to follow the mouse
   const nodeGroup = d3.select(event.sourceEvent.target.parentNode as SVGGElement);
   nodeGroup.attr('transform', `translate(${mousePos[0]},${mousePos[1]})`);
+
+  console.log("Mouse move")
 }
 
 function dragEnded(event: d3.D3DragEvent<SVGCircleElement, HierarchyNode, HierarchyNode>, d: HierarchyNode) {
@@ -65,4 +69,6 @@ function dragEnded(event: d3.D3DragEvent<SVGCircleElement, HierarchyNode, Hierar
   // Reset the node group to its original position
   const nodeGroup = d3.select(event.sourceEvent.target.parentNode as SVGGElement);
   nodeGroup.attr('transform', `translate(${d.y},${d.x})`);
+
+  console.log("Mouse up")
 }
