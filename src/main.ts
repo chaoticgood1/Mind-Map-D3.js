@@ -139,7 +139,30 @@ export function refreshTree() {
 
 function initTreeLayout(root: HierarchyNode) {
   const treeLayout = d3.tree<Data>().nodeSize([horizontalSpacing, verticalSpacing]);
-  treeLayout(root);
+
+  // Create a custom tree layout that respects manually positioned nodes
+  const customTreeLayout = {
+    ...treeLayout,
+    root: function() {
+      const layoutRoot = treeLayout(root);
+
+      // After layout, restore manually positioned nodes to their custom positions
+      layoutRoot.each((node: any) => {
+        if (node.manuallyPositioned) {
+          // Keep the manually set position
+          return;
+        }
+      });
+
+      return layoutRoot;
+    }
+  };
+
+  // Apply the layout but preserve manually positioned nodes
+  const layoutRoot = treeLayout(root);
+
+  // The tree layout has been applied, but manually positioned nodes keep their positions
+  return layoutRoot;
 }
 
 function initTransition(

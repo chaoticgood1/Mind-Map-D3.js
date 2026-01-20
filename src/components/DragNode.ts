@@ -1,17 +1,25 @@
 import * as d3 from 'd3';
 import { HierarchyNode } from '../Data';
 
+let isDragging = false;
+let draggedNode: HierarchyNode | null = null;
+let draggedElement: SVGGElement | null = null;
+
 export function init() {
-  // Create drag behavior for node circles
-  const drag = d3.drag<SVGCircleElement, HierarchyNode>()
-    .on('start', dragStarted)
-    .on('drag', dragged)
-    .on('end', dragEnded);
+  // Use manual mouse event handling instead of D3 drag
+  setupManualDrag();
+}
 
-  // Apply drag behavior to all existing circles
-  d3.selectAll('circle').call(drag);
+function setupManualDrag() {
+  // Remove any existing drag behaviors
+  d3.selectAll('circle').on('.drag', null);
 
-  // Set up a mutation observer to apply drag to newly created circles
+  // Set up manual drag on all circles
+  d3.selectAll('circle').each(function() {
+    (this as SVGCircleElement).addEventListener('mousedown', handleMouseDown as EventListener);
+  });
+
+  // Set up mutation observer for new circles
   const observer = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
       if (mutation.type === 'childList') {
@@ -19,7 +27,7 @@ export function init() {
           if (node.nodeType === 1) {
             const element = node as Element;
             if (element.tagName === 'circle') {
-              d3.select(element as SVGCircleElement).call(drag);
+              (element as SVGCircleElement).addEventListener('mousedown', handleMouseDown as EventListener);
             }
           }
         });
@@ -33,42 +41,72 @@ export function init() {
   });
 }
 
-function dragStarted(event: d3.D3DragEvent<SVGCircleElement, HierarchyNode, HierarchyNode>, d: HierarchyNode) {
-  // Prevent the click event from firing
-  event.sourceEvent.stopPropagation();
+function handleMouseDown(event: Event) {
+  if (isDragging) return;
 
-  // Bring the node group to the front
-  const nodeGroup = d3.select(event.sourceEvent.target.parentNode as SVGGElement);
-  nodeGroup.raise();
+  const mouseEvent = event as MouseEvent;
+  mouseEvent.preventDefault();
+  mouseEvent.stopPropagation();
 
-  // Change cursor during drag
-  d3.select(document.body).style('cursor', 'grabbing');
+  const circle = mouseEvent.target as SVGCircleElement;
+  const nodeGroup = circle.parentNode as SVGGElement;
+  const nodeData = d3.select(circle).datum() as HierarchyNode;
 
-  console.log("Mouse down")
+  // Start dragging
+  isDragging = true;
+  draggedNode = nodeData;
+  draggedElement = nodeGroup;
+
+  // Save the initial position to the node
+  draggedNode.dragStartX = draggedNode.x;
+  draggedNode.dragStartY = draggedNode.y;
+
+  // Bring to front
+  d3.select(nodeGroup).raise();
+
+  // Change cursor
+  document.body.style.cursor = 'grabbing';
+
+  // Add global mouse event listeners
+  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mouseup', handleMouseUp);
+
+  console.log("Drag started at:", draggedNode.x, draggedNode.y);
 }
 
-function dragged(event: d3.D3DragEvent<SVGCircleElement, HierarchyNode, HierarchyNode>, d: HierarchyNode) {
-  // Get the current zoom transform
-  const gView = d3.select('g.view-container');
-  const transform = d3.zoomTransform(gView.node() as SVGGElement);
+function handleMouseMove(event: MouseEvent) {
+  if (!isDragging || !draggedElement || !draggedNode) return;
 
-  // Convert mouse position to SVG coordinates
-  const mousePos = d3.pointer(event.sourceEvent, gView.node() as SVGGElement);
+  const gView = d3.select('g.view-container').node() as SVGGElement;
+  const mousePos = d3.pointer(event, gView);
 
-  // Update the node group position to follow the mouse
-  const nodeGroup = d3.select(event.sourceEvent.target.parentNode as SVGGElement);
-  nodeGroup.attr('transform', `translate(${mousePos[0]},${mousePos[1]})`);
+  d3.select(draggedElement)
+    .attr('transform', `translate(${mousePos[0]},${mousePos[1]})`);
 
-  console.log("Mouse move")
+  // console.log("Manual drag move, delta:", deltaX, deltaY);
+  console.log(`mouse position: ${mousePos}`);
+  const elementPosition = d3.select(draggedElement).attr('transform');
+  console.log(`elementPosition: ${elementPosition}`);
 }
 
-function dragEnded(event: d3.D3DragEvent<SVGCircleElement, HierarchyNode, HierarchyNode>, d: HierarchyNode) {
-  // Reset cursor
-  d3.select(document.body).style('cursor', null);
+function handleMouseUp(event: MouseEvent) {
+  if (!isDragging || !draggedElement || !draggedNode) return;
 
-  // Reset the node group to its original position
-  const nodeGroup = d3.select(event.sourceEvent.target.parentNode as SVGGElement);
-  nodeGroup.attr('transform', `translate(${d.y},${d.x})`);
+  if (draggedNode.dragStartX && draggedNode.dragStartY) {
+    d3.select(draggedElement)
+      .attr('transform', `translate(${draggedNode.dragStartY},${draggedNode.dragStartX})`);
+  }
 
-  console.log("Mouse up")
+  console.log("Manual drag ended at:", draggedNode.dragStartX, draggedNode.dragStartY);
+
+  draggedNode.dragStartX = undefined;
+  draggedNode.dragStartY = undefined;
+
+  isDragging = false;
+  draggedNode = null;
+  draggedElement = null;
+
+  document.body.style.cursor = '';
+  document.removeEventListener('mousemove', handleMouseMove);
+  document.removeEventListener('mouseup', handleMouseUp);
 }
