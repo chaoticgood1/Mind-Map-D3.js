@@ -43,7 +43,7 @@ async function renderTree() {
   let flatData = get(nodeData);
   if (flatData.length === 0) {
     flatData = Seeder.generateFlatData(5, 4);
-    console.log(flatData);
+    // console.log(flatData);
     nodeData.set(flatData);
   }
   root = initRoot(flatData);
@@ -225,11 +225,11 @@ function init() {
   Open.init();
 
   // New feature initialization
-  import('./components/DeleteNode').then(module => module.init());
-  import('./components/Copy').then(module => module.init());
-  import('./components/Paste').then(module => module.init());
-  import('./components/Edit').then(module => module.init());
-  import('./components/DragNode').then(module => module.init());
+  // import('./components/DeleteNode').then(module => module.init());
+  // import('./components/Copy').then(module => module.init());
+  // import('./components/Paste').then(module => module.init());
+  // import('./components/Edit').then(module => module.init());
+  // import('./components/DragNode').then(module => module.init());
 }
 
 if (document.readyState === 'loading') {
@@ -242,32 +242,38 @@ let isDataUpdating = false;
 
 selectedNode.subscribe((value: any | undefined) => {
   if (value !== undefined && !isDataUpdating) {
-    // console.log("Update Selected Node");
+    console.log("Update Selected Node");
     update(svg, root, gNode, gLink, value);
   }
 });
 
 nodeData.subscribe(() => {
   if (root && svg && gNode && gLink) {
-    isDataUpdating = true;
+    // isDataUpdating = true;
     const flatData = get(nodeData);
     root = initRoot(flatData);
     
-    // Maintain the current selection if it still exists in the new root
-    const currentSelection = get(selectedNode);
-    let source = root; // Default source for transition
+    // // Maintain the current selection if it still exists in the new root
+    // const currentSelection = get(selectedNode);
+    // let source = root; // Default source for transition
     
+    // if (currentSelection) {
+    //   const found = root.descendants().find(d => d.id === currentSelection.id);
+    //   if (found) {
+    //     source = found;
+    //     // Update the selectedNode store with the NEW hierarchy node object
+    //     // so that (get(selectedNode) === d) in Nodes.ts works!
+    //     selectedNode.set(found);
+    //   }
+    // }
+
+    let source = root;
+    const currentSelection = get(selectedNode);
     if (currentSelection) {
-      const found = root.descendants().find(d => d.id === currentSelection.id);
-      if (found) {
-        source = found;
-        // Update the selectedNode store with the NEW hierarchy node object
-        // so that (get(selectedNode) === d) in Nodes.ts works!
-        selectedNode.set(found);
-      }
+      source = currentSelection;
     }
     
     update(svg, root, gNode, gLink, source);
-    isDataUpdating = false;
+    // isDataUpdating = false;
   }
 });

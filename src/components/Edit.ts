@@ -3,7 +3,18 @@ import { selectedNode, nodeData, isEditingNode, drawerOpen } from '../registry';
 import { Data } from '../Data';
 
 export function init() {
+  window.addEventListener('node-input-changed', (e: Event) => {
+    const event = e as CustomEvent;
+    const node = get(selectedNode);
+    if (!node) return;
+    node.data.label = event.detail;
+    console.log(event.detail);
+  });
+  window.addEventListener('node-body-changed', (e: Event) => {
+    console.log("Body changed:", (e as CustomEvent).detail);
+  });
 }
+
 
 export function startEdit() {
   const node = get(selectedNode);

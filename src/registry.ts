@@ -1,13 +1,15 @@
 import { writable } from 'svelte/store';
 import { Data, HierarchyNode } from './Data';
+import * as d3 from 'd3';
 
 export const drawerOpen = writable(true);
 export const preAddNode = writable(false);
 
-export const selectedNode = writable<HierarchyNode | undefined>(undefined);
+const defaultData = new Data();
+const defaultHierarchy = d3.hierarchy(defaultData) as HierarchyNode;
+
+export const selectedNode = writable<HierarchyNode>(defaultHierarchy)
 
 export const nodeData = writable<Data[]>([]);
-
 export const copiedData = writable<Data[]>([]);
-
 export const isEditingNode = writable<boolean>(false);
