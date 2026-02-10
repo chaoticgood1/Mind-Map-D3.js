@@ -1,19 +1,31 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { selectedNode } from '../../registry';
-  import { init, finishEdit, cancelEdit } from './Edit.js';
-
-  init();
+  import { finishEdit, cancelEdit, setupInputListeners } from './Edit.js';
 
   let nodeTitle = $state<string>('');
   let nodeBody = $state<string>('');
+  let nodeInput = $state.raw<HTMLInputElement>();
+  let nodeBodyElement = $state.raw<HTMLTextAreaElement>();
   
   selectedNode.subscribe((node) => {
     if (node) {
       nodeTitle = node.data.label;
       nodeBody = node.data.body || '';
-      console.log("Test", node)
     }
   });
+
+  onMount(() => {
+    console.log("onMount")
+  });
+
+  $effect(() => {
+    if (nodeInput && nodeBodyElement) {
+      setupInputListeners(nodeInput, nodeBodyElement);
+    }
+  });
+
+  // Event handlers are now in Edit.ts
 
 </script>
 
@@ -21,28 +33,20 @@
   <div class="p-4 bg-white rounded shadow flex flex-col gap-4">
     <div>
       <input
-        id="node-input"
+      bind:this={nodeInput}
         class="border p-2 w-full text-black bg-white focus:outline-none"
         type="text"
         placeholder="Insert title here"
         bind:value={nodeTitle}
-        oninput={() => {
-          const event = new CustomEvent('node-input-changed', { detail: { label: nodeTitle } });
-          window.dispatchEvent(event);
-        }}
       />
     </div>
   
     <div>
       <textarea
-        id="node-body"
+      bind:this={nodeBodyElement}
         class="border p-2 w-full text-black bg-white focus:outline-none min-h-[100px]"
         placeholder="Insert body here"
         bind:value={nodeBody}
-        oninput={() => {
-          const event = new CustomEvent('node-body-changed', { detail: { body: nodeBody } });
-          window.dispatchEvent(event);
-        }}
       ></textarea>
     </div>
     

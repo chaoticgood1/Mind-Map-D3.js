@@ -1,33 +1,77 @@
 import { get } from 'svelte/store';
 import { selectedNode, nodeData, isEditingNode, drawerOpen, state, AppState } from '../../registry';
 
+enum EditState {
+  None,
+  InputTitle,
+  FocusTitle,
+  BlurTitle,
+  InputBody,
+  FocusBody,
+  BlurBody,
+}
+
+let editState: EditState = EditState.None;
+
+export function setupInputListeners(nodeInput: HTMLInputElement, nodeBodyElement: HTMLTextAreaElement) {
+  if (nodeInput) {
+    nodeInput.addEventListener('input', handleInputChange);
+    nodeInput.addEventListener('focus', handleInputFocus);
+    nodeInput.addEventListener('blur', handleInputBlur);
+  }
+  
+  if (nodeBodyElement) {
+    nodeBodyElement.addEventListener('input', handleBodyChange);
+  }
+}
+
+function handleInputChange(e: Event) {
+  const target = e.target as HTMLInputElement;
+  const node = get(selectedNode);
+  if (!node) return;
+  node.data.label = target.value;
+  console.log('Input event:', target.value);
+  editState = EditState.InputTitle;
+}
+
+function handleInputFocus(e: FocusEvent) {
+  const target = e.target as HTMLInputElement;
+  console.log('Focus in event:', target.value);
+  editState = EditState.FocusTitle;
+}
+
+function handleInputBlur(e: FocusEvent) {
+  const target = e.target as HTMLInputElement;
+  console.log('Focus out event:', target.value);
+  editState = EditState.BlurTitle;
+
+  window.dispatchEvent(new CustomEvent('update-tree'));
+}
+
+function handleBodyChange(e: Event) {
+  const target = e.target as HTMLTextAreaElement;
+  const node = get(selectedNode);
+  if (!node) return;
+  node.data.body = target.value;
+  console.log('Body changed:', target.value);
+  editState = EditState.InputBody;
+}
+
+
+
+
 export function init() {
-  window.addEventListener('node-input-changed', (e: Event) => {
-    const event = e as CustomEvent;
-    const node = get(selectedNode);
-    if (!node) return;
-    node.data.label = event.detail.label;
-    state.set(AppState.EDITING);
-    console.log(event.detail.label);
-  });
-  window.addEventListener('node-body-changed', (e: Event) => {
-    console.log("Body changed:", (e as CustomEvent).detail);
-  });
-  window.addEventListener('start-edit', () => {
-    // startEdit();
-    console.log("Start edit");
-  });
+  window.addEventListener('start-edit', startEdit);
+  
   // Add when enter key is pressed
   window.addEventListener('keydown', (e: KeyboardEvent) => {
     if (e.key === 'Enter' && get(state) === AppState.EDITING) {
-      // startEdit();
       console.log("Enter key pressed while editing");
-      // Broadcast the finish edit event
+      // Broadcast finish edit event
       window.dispatchEvent(new CustomEvent('update-tree'));
     }
   });
 }
-
 
 export function startEdit() {
   const node = get(selectedNode);
@@ -77,3 +121,5 @@ export function finishEdit(updates: { label?: string; body?: string }) {
 export function cancelEdit() {
   isEditingNode.set(false);
 }
+
+
