@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { selectedNode } from '../../registry';
-  import { finishEdit, cancelEdit, setupInputListeners } from './Edit.js';
+  import { setupInputListeners } from './Edit.js';
 
   let nodeTitle = $state<string>('');
   let nodeBody = $state<string>('');
@@ -24,9 +24,6 @@
       setupInputListeners(nodeInput, nodeBodyElement);
     }
   });
-
-  // Event handlers are now in Edit.ts
-
 </script>
 
 {#if $selectedNode}
@@ -48,15 +45,6 @@
         placeholder="Insert body here"
         bind:value={nodeBody}
       ></textarea>
-    </div>
-    
-    <div class="flex justify-end gap-2">
-      <button onclick={cancelEdit}>
-          Cancel
-        </button>
-        <button onclick={() => finishEdit({ label: nodeTitle, body: nodeBody })}>
-          Save
-        </button>
     </div>
   </div>
 {/if}
