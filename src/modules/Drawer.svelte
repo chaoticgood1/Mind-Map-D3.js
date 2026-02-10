@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
   import { drawerOpen } from '../registry';
-  import TextInput from './TextInput.svelte';
+  import SelectedNodeInput from './SelectedNodeInput.svelte';
 </script>
 
 {#if $drawerOpen}
@@ -13,7 +13,7 @@
            shadow-2xl overflow-y-auto z-50"
   >
     <div class="p-6">
-      <TextInput />
+      <SelectedNodeInput />
     </div>
   </div>
 {/if}

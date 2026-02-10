@@ -4,13 +4,21 @@ import { Data } from './Data';
 import { preAddNode, selectedNode, nodeData } from './registry';
 import { get } from 'svelte/store';
 
+let newNodeLabel: string = '';
+
 export function init() {
+  window.addEventListener('node-input-changed', ((e: Event) => {
+    const customEvent = e as CustomEvent;
+    newNodeLabel = customEvent.detail;
+    console.log("Received node-input-changed with detail:", newNodeLabel);
+  }) as EventListener);
+
   window.addEventListener('keydown', (ev) => {
     if (ev.key === "Tab" && (get(selectedNode) !== undefined)) {
       ev.preventDefault();
       preAddNode.set(true)
     }
-
+  
     if (ev.key === "Enter" && get(preAddNode)) {
       addNode();
       preAddNode.set(false)
@@ -18,21 +26,9 @@ export function init() {
   });
 }
 
-
-preAddNode.subscribe((value) => {
-  if (value) {
-    // preAddNode.set(false)
-    console.log("Show text input");
-  }
-});
-
 function addNode() {
-  const inputElement = document.getElementById('add-node-input') as HTMLInputElement;
-  if (inputElement) {
-    console.log("Value via DOM:", inputElement.value);
-
-    const parent = get(selectedNode);
-    if (parent && inputElement.value.trim()) {
+  const parent = get(selectedNode);
+  if (parent && newNodeLabel.trim()) {
       // Get current flat data
       const currentData = get(nodeData);
 
@@ -40,7 +36,7 @@ function addNode() {
       const newNodeId = crypto.randomUUID();
       const newData: Data = {
         id: newNodeId,
-        label: inputElement.value.trim(),
+        label: newNodeLabel.trim(),
         body: '',
         childrenIds: []
       };
@@ -57,12 +53,13 @@ function addNode() {
       });
 
       nodeData.set([...updatedData, newData]);
-      inputElement.value = '';
+      // newNodeLabel is not cleared here, should be cleared by event dispatcher,
+      // or by preAddNode becoming false.
 
-    } else if (!inputElement.value.trim()) {
+  } else if (!newNodeLabel.trim()) {
       console.warn("Cannot add node with empty label");
-    }
   } else {
-    console.warn("Input element was already removed from DOM!");
+    // Assuming input element is gone only if we didn't handle it via event
+    console.warn("Input element was already removed from DOM or value source is missing!");
   }
 }

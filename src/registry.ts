@@ -8,7 +8,7 @@ export const preAddNode = writable(false);
 const defaultData = new Data();
 const defaultHierarchy = d3.hierarchy(defaultData) as HierarchyNode;
 
-export const selectedNode = writable<HierarchyNode>(defaultHierarchy)
+export const selectedNode = writable<HierarchyNode | null>(null)
 
 export const nodeData = writable<Data[]>([]);
 export const copiedData = writable<Data[]>([]);

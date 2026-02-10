@@ -242,7 +242,7 @@ let isDataUpdating = false;
 
 selectedNode.subscribe((value: any | undefined) => {
   if (value !== undefined && !isDataUpdating) {
-    console.log("Update Selected Node");
+    // console.log("Update Selected Node");
     update(svg, root, gNode, gLink, value);
   }
 });
