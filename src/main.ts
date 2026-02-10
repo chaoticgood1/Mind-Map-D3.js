@@ -220,9 +220,9 @@ mount(App, {
 
 function init() {
   renderTree();
-  AddNode.init();
-  SaveManager.init();
-  Open.init();
+  // AddNode.init();
+  // SaveManager.init();
+  // Open.init();
 
   // New feature initialization
   // import('./components/DeleteNode').then(module => module.init());
@@ -242,10 +242,17 @@ let isDataUpdating = false;
 
 selectedNode.subscribe((value: any | undefined) => {
   if (value !== undefined && !isDataUpdating) {
-    // console.log("Update Selected Node");
     update(svg, root, gNode, gLink, value);
   }
 });
+
+window.addEventListener('update-tree', () => {
+  const node = get(selectedNode);
+  if (node) {
+    update(svg, root, gNode, gLink, node);
+  }
+});
+
 
 nodeData.subscribe(() => {
   if (root && svg && gNode && gLink) {

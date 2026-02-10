@@ -33,11 +33,8 @@ export function initNode(
 
       d.children = d.children ? undefined : d._children;
       selectedNode.set(d);
-      import('../components/Edit').then(module => {
-        if ('startEdit' in module && typeof module.startEdit === 'function') {
-          module.startEdit();
-        }
-      });
+      const editEvent = new CustomEvent('start-edit');
+      window.dispatchEvent(editEvent);
     })
   
   
@@ -50,11 +47,8 @@ export function initNode(
     .attr("fill", "white")
     .on("click", (_e, d) => {
       selectedNode.set(d);
-      import('../components/Edit').then(module => {
-        if ('startEdit' in module && typeof module.startEdit === 'function') {
-          module.startEdit();
-        }
-      });
+      const editEvent = new CustomEvent('start-edit');
+      window.dispatchEvent(editEvent);
     })
 
   const nodeUpdate = node
