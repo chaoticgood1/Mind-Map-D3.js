@@ -1,7 +1,7 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
-  import { drawerOpen } from '../registry';
-  import SelectedNodeInput from './edit/SelectedNodeInput.svelte';
+  import { drawerOpen } from '../../registry';
+  import SelectedNodeInput from './SelectedNodeInput.svelte';
 </script>
 
 {#if $drawerOpen}
