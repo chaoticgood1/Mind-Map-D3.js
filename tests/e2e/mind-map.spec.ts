@@ -30,4 +30,15 @@ test.describe('Mind Map E2E Tests', () => {
     const updatedNodeText = await page.locator('.node-group').last().locator('text').textContent();
     expect(updatedNodeText).toBe('New Title');
   })
+
+  test('should edit root node body', async ({ page }) => {
+    await page.locator('.node-group').last().click();
+    await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible' });
+    await page.locator('[data-testid="body-input"]').fill('New Body');
+    await page.waitForTimeout(100);
+    await page.locator('.node-group').first().click();
+    await page.locator('.node-group').last().click();
+    const updatedNodeText = await page.locator('[data-testid="body-input"]').inputValue();
+    expect(updatedNodeText).toBe('New Body');
+  })
 });

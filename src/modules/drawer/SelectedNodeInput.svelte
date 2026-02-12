@@ -36,7 +36,7 @@
   
     <div>
       <textarea
-        id="body-input"
+        data-testid="body-input"
         class="border p-2 w-full text-black bg-white focus:outline-none min-h-[100px]"
         placeholder="Insert body here"
         bind:value={$editingBody}

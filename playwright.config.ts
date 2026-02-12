@@ -36,17 +36,32 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
-      use: { ...devices['Desktop Chrome'] },
+      use: { 
+        ...devices['Desktop Chrome'],
+        launchOptions: {
+          slowMo: 100, // Add 100ms delay between actions
+        },
+      },
     },
 
     {
       name: 'firefox',
-      use: { ...devices['Desktop Firefox'] },
+      use: { 
+        ...devices['Desktop Firefox'],
+        launchOptions: {
+          slowMo: 100, // Add 100ms delay between actions
+        },
+      },
     },
 
     {
       name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      use: { 
+        ...devices['Desktop Safari'],
+        launchOptions: {
+          slowMo: 100, // Add 100ms delay between actions
+        },
+      },
     },
 
     /* Test against mobile viewports. */
