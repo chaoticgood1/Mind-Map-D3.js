@@ -23,10 +23,10 @@
 </script>
 
 {#if $selectedNode}
-  <div class="p-4 bg-white rounded shadow flex flex-col gap-4">
+  <div id="drawer" data-testid="drawer" class="p-4 bg-white rounded shadow flex flex-col gap-4">
     <div>
       <input
-        id="title-input"
+        data-testid="title-input"
         class="border p-2 w-full text-black bg-white focus:outline-none"
         type="text"
         placeholder="Insert title here"

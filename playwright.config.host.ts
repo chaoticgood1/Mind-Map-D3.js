@@ -28,26 +28,6 @@ export default defineConfig({
           args: ['--window-position=100,100'], // Force position on monitor 1
         },
       },
-    },
-    {
-      name: 'firefox',
-      use: { 
-        ...devices['Desktop Firefox'],
-        launchOptions: {
-          headless: false, // Show browser window
-          args: ['--window-position=100,100'], // Force position on monitor 1
-        },
-      },
-    },
-    {
-      name: 'webkit',
-      use: { 
-        ...devices['Desktop Safari'],
-        launchOptions: {
-          headless: false, // Show browser window
-          args: ['--window-position=100,100'], // Force position on monitor 1
-        },
-      },
-    },
+    }
   ],
 });
