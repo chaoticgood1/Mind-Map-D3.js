@@ -1,0 +1,36 @@
+
+services:
+  # Main application
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # E2E tests with headed browser
+  e2e-tests-headed:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      - BASE_URL=http://app:3000
+      - CI=false
+      - DISPLAY=:99  # Enable display
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+      - /tmp/.X11-unix:/tmp/.X11-unix  # X11 forwarding
+    command: npx playwright test --headed --reporter=html --output-dir=test-results
+
+volumes:
+  test-results:
+  playwright-report:

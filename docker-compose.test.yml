@@ -1,0 +1,32 @@
+
+services:
+  # Main application
+  app:
+    build: .
+    environment:
+      - NODE_ENV=development
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # E2E tests (headless only)
+  e2e-tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.test
+    depends_on:
+      app:
+        condition: service_healthy
+    environment:
+      - BASE_URL=http://app:8000
+      - CI=true
+    volumes:
+      - ./test-results:/app/test-results
+      - ./playwright-report:/app/playwright-report
+    command: npx playwright test --reporter=html --output-dir=test-results
+
+volumes:
+  test-results:
+  playwright-report:
