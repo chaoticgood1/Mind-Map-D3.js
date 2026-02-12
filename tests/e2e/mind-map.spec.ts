@@ -20,7 +20,14 @@ test.describe('Mind Map E2E Tests', () => {
     
     expect(nodeText).toBeTruthy();
     expect(titleInputValue).toBe(nodeText);
-    console.log('Node text:', nodeText);
-    console.log('Title input value:', titleInputValue);
   });
+
+  test('should edit root node title', async ({ page }) => {
+    await page.locator('.node-group').last().click();
+    await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible' });
+    await page.locator('[data-testid="title-input"]').fill('New Title');
+    await page.waitForTimeout(100); // Wait for reactivity to propagate
+    const updatedNodeText = await page.locator('.node-group').last().locator('text').textContent();
+    expect(updatedNodeText).toBe('New Title');
+  })
 });
