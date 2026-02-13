@@ -1,17 +1,6 @@
 <script lang="ts">
-  import { nodeStore, selectedNode, editingTitle, editingBody } from './NodeStore';
-
-  // Sync with selected node when it changes
-  $effect(() => {
-    nodeStore.selectNode($selectedNode);
-  });
-  
-  // Update node when local state changes
-  $effect(() => {
-    if ($selectedNode) {
-      nodeStore.updateNode($editingTitle, $editingBody);
-    }
-  });
+    import { selectedNode } from "../../registry";
+    import { editingBody, editingTitle } from "./registry";
 </script>
 
 {#if $selectedNode}
