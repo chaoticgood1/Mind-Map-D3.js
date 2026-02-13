@@ -1,9 +1,16 @@
 <script lang="ts">
     import { selectedNode } from "../../registry";
     import { editingBody, editingTitle } from "./registry";
+
+    $effect(() => {
+      if ($selectedNode) {
+        editingTitle.set($selectedNode.data.label || '');
+        editingBody.set($selectedNode.data.body || '');
+      }
+    });
 </script>
 
-{#if $selectedNode}
+{#if selectedNode}
   <div id="drawer" data-testid="drawer" class="p-4 bg-white rounded shadow flex flex-col gap-4">
     <div>
       <input
