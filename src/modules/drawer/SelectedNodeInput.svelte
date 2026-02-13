@@ -1,23 +1,15 @@
 <script lang="ts">
-  import { selectedNode } from '../../registry';
-  import { editingTitle, editingBody, syncWithNode } from './registry';
+  import { nodeStore, selectedNode, editingTitle, editingBody } from './NodeStore';
 
-  // Sync with selected node using local registry
+  // Sync with selected node when it changes
   $effect(() => {
-    const node = $selectedNode;
-    syncWithNode(node);
+    nodeStore.selectNode($selectedNode);
   });
   
   // Update node when local state changes
   $effect(() => {
-    const node = $selectedNode;
-    const title = $editingTitle;
-    const body = $editingBody;
-    
-    if (node && (node.data.label !== title || node.data.body !== body)) {
-      node.data.label = title;
-      node.data.body = body;
-      window.dispatchEvent(new CustomEvent('update-tree'));
+    if ($selectedNode) {
+      nodeStore.updateNode($editingTitle, $editingBody);
     }
   });
 </script>

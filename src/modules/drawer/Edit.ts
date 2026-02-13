@@ -1,65 +1,37 @@
-// import { get } from 'svelte/store';
-// import { selectedNode } from '../../registry';
+import { nodeStore } from './NodeStore';
 
-// enum EditState {
-//   None,
-//   InputTitle,
-//   FocusTitle,
-//   BlurTitle,
-//   InputBody,
-//   FocusBody,
-//   BlurBody,
-// }
+// Re-export node store actions for external use
+export const {
+  selectNode,
+  updateNode,
+  addNode,
+  deleteNode,
+  reset
+} = nodeStore;
 
-// let editState: EditState = EditState.None;
+// Additional edit-specific utilities can be added here
+export function isNodeEditable(node: any): boolean {
+  return node && node.data && typeof node.data.label === 'string';
+}
 
-// export function editListeners(nodeInput: HTMLInputElement, nodeBodyElement: HTMLTextAreaElement) {
-//   nodeInput.addEventListener('input', handleInputChange);
-//   nodeInput.addEventListener('focus', handleInputFocus);
-//   nodeInput.addEventListener('blur', handleInputBlur);
+export function validateNodeInput(title: string, body: string): { isValid: boolean; errors: string[] } {
+  const errors: string[] = [];
   
-//   nodeBodyElement.addEventListener('input', handleBodyChange);
-//   nodeBodyElement.addEventListener('focus', handleBodyFocus);
-//   nodeBodyElement.addEventListener('blur', handleBodyBlur); 
-// }
-
-// function handleInputChange(e: Event) {
-//   const target = e.target as HTMLInputElement;
-//   const node = get(selectedNode);
-//   if (!node) return;
-//   node.data.label = target.value;
-//   editState = EditState.InputTitle;
-// }
-
-// function handleInputFocus(e: FocusEvent) {
-//   const target = e.target as HTMLInputElement;
-//   editState = EditState.FocusTitle;
-// }
-
-// function handleInputBlur(e: FocusEvent) {
-//   const target = e.target as HTMLInputElement;
-//   editState = EditState.BlurTitle;
-
-//   window.dispatchEvent(new CustomEvent('update-tree'));
-// }
-
-// function handleBodyChange(e: Event) {
-//   const target = e.target as HTMLTextAreaElement;
-//   const node = get(selectedNode);
-//   if (!node) return;
-//   node.data.body = target.value;
-//   editState = EditState.InputBody;
-// }
-
-// function handleBodyFocus(e: FocusEvent) {
-//   const target = e.target as HTMLTextAreaElement;
-//   editState = EditState.FocusBody;
-// }
-
-// function handleBodyBlur(e: FocusEvent) {
-//   const target = e.target as HTMLTextAreaElement;
-//   editState = EditState.BlurBody;
-
-//   window.dispatchEvent(new CustomEvent('update-tree'));
-// }
+  if (!title.trim()) {
+    errors.push('Title is required');
+  }
+  
+  if (title.length > 100) {
+    errors.push('Title must be less than 100 characters');
+  }
+  
+  if (body.length > 1000) {
+    errors.push('Body must be less than 1000 characters');
+  }
+  
+  return {
+    isValid: errors.length === 0,
+    errors
+  };
+}
 
