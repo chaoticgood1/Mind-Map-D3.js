@@ -1,6 +1,6 @@
 <script lang="ts">
   import { selectedNode } from "../../registry";
-  import { editingBody, editingTitle } from "./registry";
+  import { editingBody, editingTitle } from "./LocalRegistry";
   import { Edit } from "./Edit";
 
   Edit.init();

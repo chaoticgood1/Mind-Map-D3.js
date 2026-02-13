@@ -1,12 +1,9 @@
-import { editingTitle, editingBody, isDirty, syncWithNode } from "./registry";
+import { editingTitle, editingBody, isDirty } from "./LocalRegistry";
 import { selectedNode, nodeData } from "../../registry";
 import { get } from 'svelte/store';
 
 export const Edit = {
   init() {
-    editingTitle.subscribe((value) => {
-      console.log(value);
-    });
   },
 
   save() {
@@ -36,12 +33,5 @@ export const Edit = {
   },
 
   cancel() {
-    selectedNode.subscribe(node => {
-      if (node) {
-        // Reset editing state to original node values
-        syncWithNode(node);
-        console.log('Changes cancelled for node:', node.data.id);
-      }
-    });
   }
 };
