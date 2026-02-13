@@ -8,10 +8,9 @@ test.describe('Mind Map E2E Tests', () => {
     await page.waitForLoadState('domcontentloaded');
   });
 
-  // test('should load mind map with initial nodes', async ({ page }) => {
-  //   // Check if mind map container exists
-  //   await expect(page.locator('#mindmap-container')).toBeVisible();
-  // });
+  test('should load mind map with initial nodes', async ({ page }) => {
+    await expect(page.locator('#mindmap-container')).toBeVisible();
+  });
 
   test('should check if same text is in title input', async ({ page }) => {
     await page.locator('.node-group').first().locator('circle').click({ timeout: 500 });
@@ -23,23 +22,57 @@ test.describe('Mind Map E2E Tests', () => {
     expect(titleInputValue).toBe(nodeText);
   });
 
-  // test('should edit root node title', async ({ page }) => {
-  //   await page.locator('.node-group').last().click({ timeout: 500 });
-  //   await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible', timeout: 500 });
-  //   await page.locator('[data-testid="title-input"]').fill('New Title');
-  //   await page.waitForTimeout(100); // Wait for reactivity to propagate
-  //   const updatedNodeText = await page.locator('.node-group').last().locator('text').textContent();
-  //   expect(updatedNodeText).toBe('New Title');
-  // })
+  test('should edit root node title', async ({ page }) => {
+    await page.locator('.node-group').last().click({ timeout: 500 });
+    await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible', timeout: 500 });
+    await page.locator('[data-testid="title-input"]').fill('New Title');
+    await page.locator('[data-testid="save-button"]').click();
+    await page.waitForTimeout(100);
+    const updatedNodeText = await page.locator('.node-group').last().locator('text').textContent();
+    expect(updatedNodeText).toBe('New Title');
+  });
 
-  // test('should edit root node body', async ({ page }) => {
-  //   await page.locator('.node-group').last().click({ timeout: 500 });
-  //   await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible', timeout: 500 });
-  //   await page.locator('[data-testid="body-input"]').fill('New Body');
-  //   await page.waitForTimeout(100);
-  //   await page.locator('.node-group').first().click();
-  //   await page.locator('.node-group').last().click();
-  //   const updatedNodeText = await page.locator('[data-testid="body-input"]').inputValue();
-  //   expect(updatedNodeText).toBe('New Body');
-  // })
+  test('should not modify other node title when editing root node', async ({ page }) => {
+    await page.locator('.node-group').last().click({ timeout: 500 });
+    await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible', timeout: 500 });
+    await page.locator('[data-testid="title-input"]').fill('New Title');
+    await page.locator('[data-testid="save-button"]').click();
+    await page.waitForTimeout(100);
+    const updatedNodeText = await page.locator('.node-group').last().locator('text').textContent();
+    expect(updatedNodeText).toBe('New Title');
+    
+    // Click on another node and check if it's still the same
+    await page.locator('.node-group').first().click({ timeout: 500 });
+    await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible', timeout: 500 });
+    const otherNodeText = await page.locator('[data-testid="title-input"]').inputValue();
+    expect(otherNodeText).not.toBe('New Title');
+  });
+
+  test('should edit root node body', async ({ page }) => {
+    await page.locator('.node-group').last().click({ timeout: 500 });
+    await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible', timeout: 500 });
+    await page.locator('[data-testid="body-input"]').fill('New Body');
+    await page.locator('[data-testid="save-button"]').click();
+    await page.waitForTimeout(100);
+    await page.locator('.node-group').first().click();
+    await page.locator('.node-group').last().click();
+    const updatedNodeText = await page.locator('[data-testid="body-input"]').inputValue();
+    expect(updatedNodeText).toBe('New Body');
+  })
+  
+  test('should not modify other node body when editing root node', async ({ page }) => {
+    await page.locator('.node-group').last().click({ timeout: 500 });
+    await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible', timeout: 500 });
+    await page.locator('[data-testid="body-input"]').fill('New Body');
+    await page.locator('[data-testid="save-button"]').click();
+    await page.waitForTimeout(100);
+    const updatedNodeText = await page.locator('[data-testid="body-input"]').inputValue();
+    expect(updatedNodeText).toBe('New Body');
+    
+    // Click on another node and check if it's still the same
+    await page.locator('.node-group').first().click({ timeout: 500 });
+    await page.locator('[data-testid="drawer"]').waitFor({ state: 'visible', timeout: 500 });
+    const otherNodeText = await page.locator('[data-testid="body-input"]').inputValue();
+    expect(otherNodeText).not.toBe('New Body');
+  })
 });
