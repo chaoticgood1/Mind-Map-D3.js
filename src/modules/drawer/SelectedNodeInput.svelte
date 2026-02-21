@@ -1,16 +1,11 @@
 <script lang="ts">
   import { selectedNode } from "../../registry";
-  import { editingBody, editingTitle } from "./LocalRegistry";
+  import { body, title, titlePlaceholder, bodyPlaceholder } from "./LocalRegistry";
   import { Edit } from "./Edit";
+  import { AddNode } from "./AddNode";
 
   Edit.init();
-
-  $effect(() => {
-    if ($selectedNode) {
-      editingTitle.set($selectedNode.data.label || '');
-      editingBody.set($selectedNode.data.body || '');
-    }
-  });
+  AddNode.init();
 </script>
 
 {#if selectedNode}
@@ -20,8 +15,8 @@
         data-testid="title-input"
         class="border p-2 w-full text-black bg-white focus:outline-none"
         type="text"
-        placeholder="Insert title here"
-        bind:value={$editingTitle}
+        placeholder={$titlePlaceholder}
+        bind:value={$title}
       />
     </div>
   
@@ -29,8 +24,8 @@
       <textarea
         data-testid="body-input"
         class="border p-2 w-full text-black bg-white focus:outline-none min-h-[100px]"
-        placeholder="Insert body here"
-        bind:value={$editingBody}
+        placeholder={$bodyPlaceholder}
+        bind:value={$body}
       ></textarea>
     </div>
 

@@ -8,12 +8,12 @@
     "build": "vite build",
     "preview": "vite preview",
     "setup:playwright": "playwright install --with-deps",
-    "test:e2e": "playwright test",
-    "test:e2e:debug": "playwright test --debug --config=playwright.config.host.ts",
-    "test:e2e:codegen": "playwright codegen --config=playwright.config.host.ts",
-    "test:e2e:host": "playwright test --config=playwright.config.host.ts",
-    "test:e2e:host-headed": "playwright test --headed --config=playwright.config.host.ts",
-    "test:e2e:host-all": "playwright test --project=chromium,firefox,webkit --config=playwright.config.host.ts"
+    "e2e": "playwright test",
+    "e2e:debug": "playwright test --debug --config=playwright.config.host.ts",
+    "e2e:codegen": "playwright codegen --config=playwright.config.host.ts",
+    "e2e:host": "playwright test --config=playwright.config.host.ts",
+    "e2e:host-headed": "playwright test --headed --config=playwright.config.host.ts",
+    "e2e:host-all": "playwright test --project=chromium,firefox,webkit --config=playwright.config.host.ts"
   },
   "keywords": [],
   "author": "",

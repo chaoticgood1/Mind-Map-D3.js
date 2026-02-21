@@ -1,15 +1,27 @@
-import { editingTitle, editingBody, isDirty } from "./LocalRegistry";
-import { selectedNode, nodeData } from "../../registry";
-import { get } from 'svelte/store';
+import { get } from "svelte/store";
+import { selectedNode } from "../../registry";
+import { currentMode, Mode } from "./LocalRegistry";
 
-export const Edit = {
+export const AddNode = {
   init() {
-
-    // When tab is pressed, set preAddNode to true
-    // When enter is pressed, call addNode
+    // Listen for tab key when there's a selected node
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Tab' && selectedNode) {
+        event.preventDefault();
+        setAddMode();
+      }
+    });
   },
 
   save() {
+    if (get(currentMode) !== Mode.Add) {
+      return;
+    }
     
+    // TODO: Implement save added node logic
   },
 };
+
+function setAddMode() {
+  currentMode.set(Mode.Add);
+}

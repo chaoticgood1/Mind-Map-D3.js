@@ -6,39 +6,17 @@ import { writable } from 'svelte/store';
  * Use the public API exported from index.ts instead
  */
 // Local drawer-specific state
-export const editingTitle = writable<string>('');
-export const editingBody = writable<string>('');
+export const title = writable<string>('');
+export const body = writable<string>('');
 export const isDirty = writable<boolean>(false);
+export const titlePlaceholder = writable<string>('Edit title');
+export const bodyPlaceholder = writable<string>('Edit body');
 
-// Edit state enum for internal drawer use
-export enum EditState {
+// Mode enum for Edit/Add functionality
+export enum Mode {
   None,
-  InputTitle,
-  FocusTitle,
-  BlurTitle,
-  InputBody,
-  FocusBody,
-  BlurBody,
+  Edit,
+  Add,
 }
 
-export const editState = writable<EditState>(EditState.None);
-
-// Helper functions for drawer state management
-export function resetEditingState() {
-  editingTitle.set('');
-  editingBody.set('');
-  isDirty.set(false);
-  editState.set(EditState.None);
-}
-
-export function markAsDirty() {
-  isDirty.set(true);
-}
-
-export function syncWithNode(node: any) {
-  if (node) {
-    editingTitle.set(node.data.label || '');
-    editingBody.set(node.data.body || '');
-    isDirty.set(false);
-  }
-}
+export const currentMode = writable<Mode>(Mode.None);
