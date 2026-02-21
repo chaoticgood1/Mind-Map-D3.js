@@ -2,9 +2,6 @@ import * as d3 from 'd3';
 import * as Seeder from './Seeder';
 import * as Nodes from './renderer/Nodes';
 import { Data, HierarchyNode } from './Data';
-import * as AddNode from './AddNode';
-import * as SaveManager from './file/SaveManager';
-import * as Open from './file/Open';
 import { mount } from 'svelte';
 import App from './App.svelte';
 import { nodeData, selectedNode } from './registry';
@@ -42,7 +39,8 @@ async function renderTree() {
 
   let flatData = get(nodeData);
   if (flatData.length === 0) {
-    flatData = Seeder.generateFlatData(5, 4);
+    // flatData = Seeder.generateFlatData(5, 4);
+    flatData = Seeder.generateFlatData(2, 1);
     // console.log(flatData);
     nodeData.set(flatData);
   }
@@ -229,7 +227,7 @@ function init() {
   // import('./components/Copy').then(module => module.init());
   // import('./components/Paste').then(module => module.init());
   // import('./components/Edit').then(module => module.init());
-  // import('./components/DragNode').then(module => module.init());
+  // import('./modules/DragNode').then(module => module.init());
 }
 
 if (document.readyState === 'loading') {
@@ -237,6 +235,10 @@ if (document.readyState === 'loading') {
 } else {
   init();
 }
+
+
+
+
 
 let isDataUpdating = false;
 
@@ -252,7 +254,6 @@ window.addEventListener('update-tree', () => {
     update(svg, root, gNode, gLink, node);
   }
 });
-
 
 nodeData.subscribe(() => {
   if (root && svg && gNode && gLink) {
@@ -284,3 +285,5 @@ nodeData.subscribe(() => {
     // isDataUpdating = false;
   }
 });
+
+

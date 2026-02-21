@@ -9,11 +9,11 @@
     "preview": "vite preview",
     "setup:playwright": "playwright install --with-deps",
     "e2e": "playwright test",
-    "e2e:debug": "playwright test --debug --config=playwright.config.host.ts",
-    "e2e:codegen": "playwright codegen --config=playwright.config.host.ts",
-    "e2e:host": "playwright test --config=playwright.config.host.ts",
-    "e2e:host-headed": "playwright test --headed --config=playwright.config.host.ts",
-    "e2e:host-all": "playwright test --project=chromium,firefox,webkit --config=playwright.config.host.ts"
+    "e2e:debug": "playwright test --debug --config=playwright.config.local.ts",
+    "e2e:codegen": "playwright codegen --config=playwright.config.local.ts",
+    "e2e-local": "playwright test --config=playwright.config.local.ts",
+    "e2e-local-headed": "playwright test --headed --config=playwright.config.local.ts",
+    "e2e-local-all": "playwright test --project=chromium,firefox,webkit --config=playwright.config.local.ts"
   },
   "keywords": [],
   "author": "",

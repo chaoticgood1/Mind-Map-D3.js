@@ -3,7 +3,6 @@ import { Data, HierarchyNode } from '../Data';
 import { selectedNode } from '../registry';
 import { get } from 'svelte/store';
 
-
 export function initNode(
   root: HierarchyNode,
   gNode: d3.Selection<SVGGElement, unknown, null, undefined>,
@@ -22,14 +21,19 @@ export function initNode(
     .attr("transform", _d => `translate(${source.y0 ?? source.y},${source.x0 ?? source.x})`)
     .attr("fill-opacity", 0)
     
+  // Initialize drag behavior
+  const drag = dragInit();
 
   nodeEnter.append("circle")
     .attr("r", 8)
     // .attr("fill", d => d._children ? "#555" : "#999")
     .style("cursor", "grab")
+    .call(drag)
     .on("click", (event, d) => {
       // Prevent click if this was part of a drag operation
       if (event.defaultPrevented) return;
+
+      console.log("click circle")
 
       d.children = d.children ? undefined : d._children;
       selectedNode.set(d);
@@ -88,5 +92,158 @@ export function initNode(
     .attr("fill-opacity", 0)
     .on("end", function() {
       selectedNode.set(new Data());
+    });
+}
+
+function checkCollision(draggedNode: HierarchyNode): HierarchyNode | null {
+  let collidedNode: HierarchyNode | null = null;
+  
+  d3.selectAll('circle').each(function() {
+    const circle = d3.select(this);
+    const nodeData = circle.datum() as HierarchyNode;
+    
+    // Skip checking collision with the dragged node itself
+    if (nodeData === draggedNode) return;
+    
+    const draggedX = draggedNode.x;
+    const draggedY = draggedNode.y;
+    const targetX = nodeData.x;
+    const targetY = nodeData.y;
+    
+    // Calculate distance between centers
+    const distance = Math.sqrt(Math.pow(draggedX - targetX, 2) + Math.pow(draggedY - targetY, 2));
+    
+    // Check if circles are touching or overlapping (using radius of 8 for both circles)
+    const collisionThreshold = 16; // 8 + 8 (radius of both circles)
+    
+    if (distance <= collisionThreshold) {
+      collidedNode = nodeData;
+      console.log(`Collision detected with node: ${nodeData.data.label} at distance: ${distance}`);
+    }
+  });
+  
+  return collidedNode;
+}
+
+function dragInit(): d3.DragBehavior<SVGCircleElement, HierarchyNode, d3.SubjectPosition, any> {
+  return d3.drag<SVGCircleElement, HierarchyNode>()
+    .subject(function(event, d) {
+      // Get the current transform of the node group
+      const nodeGroup = d3.select(this.parentNode as SVGGElement);
+      const transform = nodeGroup.attr("transform");
+      const match = transform.match(/translate\(([^,]+),([^)]+)\)/);
+      
+      if (match) {
+        return { 
+          x: parseFloat(match[1]), 
+          y: parseFloat(match[2]) 
+        };
+      }
+      
+      // Fallback to node data position
+      return { x: d.x, y: d.y };
+    })
+    .on("start", function(event, d) {
+      console.log("Drag started for node:", d.data.label);
+      d3.select(this).style("cursor", "grabbing");
+      
+      // Store original position from the current transform
+      const nodeGroup = d3.select(this.parentNode as SVGGElement);
+      const currentTransform = nodeGroup.attr("transform");
+      const match = currentTransform.match(/translate\(([^,]+),([^)]+)\)/);
+      
+      if (match) {
+        d.dragStartX = parseFloat(match[1]);
+        d.dragStartY = parseFloat(match[2]);
+        console.log(`Stored original position: (${d.dragStartX}, ${d.dragStartY})`);
+      } else {
+        // Fallback to node data position
+        d.dragStartX = d.x;
+        d.dragStartY = d.y;
+        console.log(`Using node data position: (${d.dragStartX}, ${d.dragStartY})`);
+      }
+    })
+    .on("drag", function(event, d) {
+      // Get the SVG element to compute mouse position relative to it
+      const svg = d3.select('svg');
+      const mousePos = d3.pointer(event, svg.node() as SVGSVGElement);
+      
+      // Get the current zoom transform from the view container
+      const gView = d3.select('g.view-container');
+      const transform = gView.attr("transform");
+      
+      // Parse the transform to get scale and translate values
+      let scale = 1, translateX = 0, translateY = 0;
+      if (transform) {
+        const scaleMatch = transform.match(/scale\(([^)]+)\)/);
+        const translateMatch = transform.match(/translate\(([^,]+),\s*([^)]+)\)/);
+        
+        if (scaleMatch) scale = parseFloat(scaleMatch[1]);
+        if (translateMatch) {
+          translateX = parseFloat(translateMatch[1]);
+          translateY = parseFloat(translateMatch[2]);
+        }
+      }
+      
+      // Apply inverse transform to get position in the untransformed coordinate system
+      const adjustedX = (mousePos[0] - translateX) / scale;
+      const adjustedY = (mousePos[1] - translateY) / scale;
+      
+      console.log("Dragging node:", d.data.label, "to:", adjustedX, adjustedY);
+      
+      // Update node position with adjusted coordinates
+      d.x = adjustedX;
+      d.y = adjustedY;
+      
+      // Update the transform of the node group
+      const nodeGroup = d3.select(this.parentNode as SVGGElement);
+      nodeGroup.attr("transform", `translate(${adjustedX},${adjustedY})`);
+      
+      // Mark as manually positioned
+      (d as any).manuallyPositioned = true;
+    })
+    .on("end", function(event, d) {
+      console.log("Drag ended for node:", d.data.label, "at:", d.x, d.y);
+      d3.select(this).style("cursor", "grab");
+      
+      // Check for collision with other circles after drag ends
+      const collidedNode = checkCollision(d);
+      if (collidedNode) {
+        console.log(`Node "${d.data.label}" collided with "${collidedNode.data.label}"`);
+        
+        // You can add collision handling logic here
+        // For example: create a connection, merge nodes, show a notification, etc.
+        
+        // Visual feedback - make both nodes flash red briefly
+        const draggedCircle = d3.select(this);
+        const collidedCircle = d3.selectAll('circle').filter((nodeData: any) => nodeData === collidedNode);
+        
+        draggedCircle.style('fill', 'red');
+        collidedCircle.style('fill', 'red');
+        
+        // Reset colors after a short delay
+        setTimeout(() => {
+          draggedCircle.style('fill', null);
+          collidedCircle.style('fill', null);
+        }, 500);
+      } else {
+        // No collision detected - return to original position
+        console.log(`No collision detected - returning "${d.data.label}" to original position`);
+        
+        if (d.dragStartX !== undefined && d.dragStartY !== undefined) {
+          // Return to original position
+          d.x = d.dragStartX;
+          d.y = d.dragStartY;
+          
+          // Update the transform with animation
+          const nodeGroup = d3.select(this.parentNode as SVGGElement);
+          nodeGroup.transition()
+            .duration(300)
+            .attr("transform", `translate(${d.dragStartX},${d.dragStartY})`);
+          
+          // Clear the manually positioned flag since we're returning to original
+          (d as any).manuallyPositioned = false;
+        }
+      }
     });
 }
