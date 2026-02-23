@@ -26,6 +26,16 @@ function handleKeyDown(event: KeyboardEvent) {
       title.set('');
       body.set('');
       currentMode.set(Mode.Add);
+    } else if (currentModeValue === Mode.Add && !titleValue.trim()) {
+      // If in Add mode and title is empty, cancel and go to edit mode
+      const selected = get(selectedNode);
+      if (selected) {
+        titlePlaceholder.set('Edit title');
+        bodyPlaceholder.set('Edit body');
+        title.set(selected.data.label || '');
+        body.set(selected.data.body || '');
+        currentMode.set(Mode.Edit);
+      }
     } else if (currentModeValue !== Mode.Add) {
       // If not in Add mode, start add process
       titlePlaceholder.set('Add Title');
@@ -52,8 +62,21 @@ function save() {
   }
   
   const titleValue = get(title);
-  const bodyValue = get(body);
   
+  if (!titleValue.trim()) {
+    // If title is empty, cancel and go to edit mode
+    const selected = get(selectedNode);
+    if (selected) {
+      titlePlaceholder.set('Edit title');
+      bodyPlaceholder.set('Edit body');
+      title.set(selected.data.label || '');
+      body.set(selected.data.body || '');
+      currentMode.set(Mode.Edit);
+    }
+    return;
+  }
+  
+  const bodyValue = get(body);
   createChild(titleValue, bodyValue);
   
   // Reset the form and mode
