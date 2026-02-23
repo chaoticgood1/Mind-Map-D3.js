@@ -13,11 +13,27 @@ export const AddNode = {
 function handleKeyDown(event: KeyboardEvent) {
   if (event.key === 'Tab' && get(selectedNode)) {
     event.preventDefault();
-    titlePlaceholder.set('Add Title');
-    bodyPlaceholder.set('Add Body');
-    title.set('');
-    body.set('');
-    currentMode.set(Mode.Add);
+    
+    const currentModeValue = get(currentMode);
+    const titleValue = get(title);
+    
+    if (currentModeValue === Mode.Add && titleValue.trim()) {
+      // If in Add mode and title has content, save current node
+      save();
+      // Then start new add process
+      titlePlaceholder.set('Add Title');
+      bodyPlaceholder.set('Add Body');
+      title.set('');
+      body.set('');
+      currentMode.set(Mode.Add);
+    } else if (currentModeValue !== Mode.Add) {
+      // If not in Add mode, start add process
+      titlePlaceholder.set('Add Title');
+      bodyPlaceholder.set('Add Body');
+      title.set('');
+      body.set('');
+      currentMode.set(Mode.Add);
+    }
   }
 }
 
@@ -82,10 +98,4 @@ function createChild(titleValue?: string, bodyValue?: string) {
     
     return updatedData;
   });
-
-  // Trigger tree update to maintain selection
-  setTimeout(() => {
-    const updateEvent = new CustomEvent('update-tree');
-    window.dispatchEvent(updateEvent);
-  }, 50);
 }
