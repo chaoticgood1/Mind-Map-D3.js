@@ -6,10 +6,15 @@
 
   Edit.init();
   AddNode.init();
+  
+  // Debug: Log selectedNode changes
+  selectedNode.subscribe(value => {
+    console.log('SelectedNodeInput - selectedNode changed:', value);
+  });
 </script>
 
-{#if selectedNode}
-  <div id="drawer" data-testid="drawer" class="p-4 bg-white rounded shadow flex flex-col gap-4">
+{#if $selectedNode}
+  <div id="node-input" data-testid="node-input" class="p-4 bg-white rounded shadow flex flex-col gap-4">
     <div>
       <input
         data-testid="title-input"
@@ -38,5 +43,8 @@
       </button>
     </div>
   </div>
+{:else}
+  <!-- Debug: Show when selectedNode is falsy -->
+  <div style="display: none;" data-testid="drawer-hidden">No node selected</div>
 {/if}
 

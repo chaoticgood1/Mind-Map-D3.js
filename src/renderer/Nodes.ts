@@ -6,7 +6,7 @@ import { get } from 'svelte/store';
 export function initNode(
   root: HierarchyNode,
   gNode: d3.Selection<SVGGElement, unknown, null, undefined>,
-  source: HierarchyNode,
+  source: HierarchyNode | undefined,
   transition: d3.Transition<any, any, any, any>
 ) {
   const nodes = root.descendants().reverse();
@@ -18,7 +18,7 @@ export function initNode(
     .enter()
     .append("g")
     .attr("class", "node-group")
-    .attr("transform", _d => `translate(${source.y0 ?? source.y},${source.x0 ?? source.x})`)
+    .attr("transform", _d => `translate(${source?.y0 ?? source?.y},${source?.x0 ?? source?.x})`)
     .attr("fill-opacity", 0)
     
   // Initialize drag behavior
@@ -91,7 +91,7 @@ export function initNode(
     .attr("transform", _d => `translate(${source.y},${source.x})`)
     .attr("fill-opacity", 0)
     .on("end", function() {
-      selectedNode.set(new Data());
+      // selectedNode.set(new Data());
     });
 }
 

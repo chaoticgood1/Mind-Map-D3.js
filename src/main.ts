@@ -119,13 +119,13 @@ function update(
   root: HierarchyNode, 
   gNode: d3.Selection<SVGGElement, unknown, null, undefined>,
   gLink: d3.Selection<SVGGElement, unknown, null, undefined>,
-  source: HierarchyNode,
+  source: HierarchyNode | undefined,
 ) {
   initTreeLayout(root);
   const transition = initTransition(svg, root);
 
   Nodes.initNode(root, gNode, source, transition);
-  Links.init(root, gLink, source, transition);
+  Links.init(root, gLink, source);
   cacheOldPosition(root);
 }
 
@@ -243,7 +243,7 @@ if (document.readyState === 'loading') {
 let isDataUpdating = false;
 
 selectedNode.subscribe((value: any | undefined) => {
-  if (value !== undefined && !isDataUpdating) {
+  if (value && !isDataUpdating) {
     update(svg, root, gNode, gLink, value);
   }
 });
@@ -262,7 +262,7 @@ nodeData.subscribe(() => {
     
     // Maintain the current selection if it still exists in the new root
     const currentSelection = get(selectedNode);
-    let source = root; // Default source for transition
+    let source = undefined; // Default source for transition
     
     if (currentSelection) {
       const found = root.descendants().find(d => d.data.id === currentSelection.data.id);

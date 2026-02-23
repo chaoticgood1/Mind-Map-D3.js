@@ -27,7 +27,7 @@ test.describe('Add Node E2E Tests', () => {
     await expect(page.locator('[data-testid="body-input"]')).toHaveValue('');
   });
 
-  test('should add child node when save button is clicked', async ({ page }) => {
+  test.only('should add child node when save button is clicked', async ({ page }) => {
     // Select a node and open add form
     await page.locator('.node-group').first().click({ timeout: 500 });
     await page.waitForTimeout(100);

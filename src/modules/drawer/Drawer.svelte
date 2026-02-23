@@ -1,6 +1,6 @@
 <script lang="ts">
   import { fly } from 'svelte/transition';
-  import { drawerOpen } from '../../registry';
+  import { drawerOpen, selectedNode } from '../../registry';
   import SelectedNodeInput from './SelectedNodeInput.svelte';
 </script>
 
