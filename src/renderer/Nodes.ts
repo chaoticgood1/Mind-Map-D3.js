@@ -95,33 +95,52 @@ export function initNode(
     });
 }
 
-function checkCollision(draggedNode: HierarchyNode): HierarchyNode | null {
+function checkCollision(draggedNode: HierarchyNode, draggedCircleElement: d3.Selection<SVGCircleElement, any, any, any>): HierarchyNode | null {
   let collidedNode: HierarchyNode | null = null;
   
+  console.log(`=== Checking collision for dragged node "${draggedNode.data.label}" at (${draggedNode.x}, ${draggedNode.y}) ===`);
+  
+  // Get the dragged circle radius once
+  const draggedRadius = parseFloat(draggedCircleElement.attr('r')) || 8;
+  console.log(`Dragged circle radius: ${draggedRadius}`);
+  
+  let checkCount = 0;
   d3.selectAll('circle').each(function() {
+    checkCount++;
     const circle = d3.select(this);
     const nodeData = circle.datum() as HierarchyNode;
     
     // Skip checking collision with the dragged node itself
-    if (nodeData === draggedNode) return;
+    if (nodeData === draggedNode) {
+      console.log(`Skipping self: ${nodeData.data.label}`);
+      return;
+    }
     
     const draggedX = draggedNode.x;
     const draggedY = draggedNode.y;
     const targetX = nodeData.x;
     const targetY = nodeData.y;
     
+    // Get the actual radius of the target circle
+    const targetRadius = parseFloat(circle.attr('r')) || 8;
+    
     // Calculate distance between centers
     const distance = Math.sqrt(Math.pow(draggedX - targetX, 2) + Math.pow(draggedY - targetY, 2));
     
-    // Check if circles are touching or overlapping (using radius of 8 for both circles)
-    const collisionThreshold = 16; // 8 + 8 (radius of both circles)
+    console.log(`Check #${checkCount}: Against "${nodeData.data.label}" at (${targetX}, ${targetY}), distance: ${distance}, draggedRadius: ${draggedRadius}, targetRadius: ${targetRadius}`);
+    
+    // Check if circles are touching or overlapping based on actual radii
+    const collisionThreshold = draggedRadius + targetRadius;
+    
+    console.log(`Distance: ${distance} <= Threshold: ${collisionThreshold}? ${distance <= collisionThreshold}`);
     
     if (distance <= collisionThreshold) {
       collidedNode = nodeData;
-      console.log(`Collision detected with node: ${nodeData.data.label} at distance: ${distance}`);
+      console.log(`!!! COLLISION DETECTED with node: ${nodeData.data.label} at distance: ${distance}, threshold: ${collisionThreshold} !!!`);
     }
   });
   
+  console.log(`=== Final collision result: ${collidedNode ? collidedNode.data.label : 'None'} ===`);
   return collidedNode;
 }
 
@@ -144,7 +163,7 @@ function dragInit(): d3.DragBehavior<SVGCircleElement, HierarchyNode, d3.Subject
       return { x: d.x, y: d.y };
     })
     .on("start", function(event, d) {
-      console.log("Drag started for node:", d.data.label);
+      // console.log("Drag started for node:", d.data.label);
       d3.select(this).style("cursor", "grabbing");
       
       // Store original position from the current transform
@@ -155,12 +174,12 @@ function dragInit(): d3.DragBehavior<SVGCircleElement, HierarchyNode, d3.Subject
       if (match) {
         d.dragStartX = parseFloat(match[1]);
         d.dragStartY = parseFloat(match[2]);
-        console.log(`Stored original position: (${d.dragStartX}, ${d.dragStartY})`);
+        // console.log(`Stored original position: (${d.dragStartX}, ${d.dragStartY})`);
       } else {
         // Fallback to node data position
         d.dragStartX = d.x;
         d.dragStartY = d.y;
-        console.log(`Using node data position: (${d.dragStartX}, ${d.dragStartY})`);
+        // console.log(`Using node data position: (${d.dragStartX}, ${d.dragStartY})`);
       }
     })
     .on("drag", function(event, d) {
@@ -189,7 +208,7 @@ function dragInit(): d3.DragBehavior<SVGCircleElement, HierarchyNode, d3.Subject
       const adjustedX = (mousePos[0] - translateX) / scale;
       const adjustedY = (mousePos[1] - translateY) / scale;
       
-      console.log("Dragging node:", d.data.label, "to:", adjustedX, adjustedY);
+      // console.log("Dragging node:", d.data.label, "to:", adjustedX, adjustedY);
       
       // Update node position with adjusted coordinates
       d.x = adjustedX;
@@ -199,51 +218,83 @@ function dragInit(): d3.DragBehavior<SVGCircleElement, HierarchyNode, d3.Subject
       const nodeGroup = d3.select(this.parentNode as SVGGElement);
       nodeGroup.attr("transform", `translate(${adjustedX},${adjustedY})`);
       
+      // Check for collision during dragging
+      const collidedNode = checkCollision(d, d3.select(this));
+      const currentCircle = d3.select(this);
+      
+      if (collidedNode) {
+        // Change color to red when colliding
+        currentCircle.style('fill', 'red');
+        console.log(`COLLIDING with ${collidedNode.data.label}`);
+      } else {
+        // Reset to default color when not colliding
+        currentCircle.style('fill', null);
+      }
+      
       // Mark as manually positioned
       (d as any).manuallyPositioned = true;
     })
     .on("end", function(event, d) {
-      console.log("Drag ended for node:", d.data.label, "at:", d.x, d.y);
+      // console.log("Drag ended for node:", d.data.label, "at:", d.x, d.y);
       d3.select(this).style("cursor", "grab");
       
-      // Check for collision with other circles after drag ends
-      const collidedNode = checkCollision(d);
+      // Check if node was actually moved before doing collision detection
+      const wasMoved = (d.dragStartX !== undefined && d.dragStartY !== undefined && 
+                       (d.x !== d.dragStartX || d.y !== d.dragStartY));
+      
+      if (!wasMoved) {
+        console.log(`Node "${d.data.label}" was not moved - no action needed`);
+        return;
+      }
+      
+      // Only check collision if node was actually moved
+      const collidedNode = checkCollision(d, d3.select(this));
       if (collidedNode) {
-        console.log(`Node "${d.data.label}" collided with "${collidedNode.data.label}"`);
+        // console.log(`Node "${d.data.label}" collided with "${collidedNode.data.label}"`);
         
-        // You can add collision handling logic here
-        // For example: create a connection, merge nodes, show a notification, etc.
-        
-        // Visual feedback - make both nodes flash red briefly
-        const draggedCircle = d3.select(this);
-        const collidedCircle = d3.selectAll('circle').filter((nodeData: any) => nodeData === collidedNode);
-        
-        draggedCircle.style('fill', 'red');
-        collidedCircle.style('fill', 'red');
-        
-        // Reset colors after a short delay
-        setTimeout(() => {
-          draggedCircle.style('fill', null);
-          collidedCircle.style('fill', null);
-        }, 500);
+        // Call the collidesWith function
+        collidesWith(collidedNode, d);
       } else {
         // No collision detected - return to original position
         console.log(`No collision detected - returning "${d.data.label}" to original position`);
         
-        if (d.dragStartX !== undefined && d.dragStartY !== undefined) {
-          // Return to original position
-          d.x = d.dragStartX;
-          d.y = d.dragStartY;
-          
-          // Update the transform with animation
-          const nodeGroup = d3.select(this.parentNode as SVGGElement);
-          nodeGroup.transition()
-            .duration(300)
-            .attr("transform", `translate(${d.dragStartX},${d.dragStartY})`);
-          
-          // Clear the manually positioned flag since we're returning to original
-          (d as any).manuallyPositioned = false;
-        }
+        // Return to original position
+        d.x = d.dragStartX;
+        d.y = d.dragStartY;
+        
+        // Update the transform with animation
+        const nodeGroup = d3.select(this.parentNode as SVGGElement);
+        nodeGroup.transition()
+          .duration(300)
+          .attr("transform", `translate(${d.dragStartX},${d.dragStartY})`);
+        
+        // Clear the manually positioned flag since we're returning to original
+        (d as any).manuallyPositioned = false;
       }
     });
+}
+
+export function collidesWith(targetNode: HierarchyNode, draggedNodeData: HierarchyNode): void {
+  console.log(`collidesWith() called: ${targetNode.data.label} collided with ${draggedNodeData.data.label}`);
+  
+  // const targetCircle = d3.selectAll('circle').filter((nodeData: any) => nodeData === targetNode);
+  // const draggedCircle = d3.selectAll('circle').filter((nodeData: any) => nodeData === draggedNodeData);
+  
+  // targetCircle
+  //   .transition()
+  //   .duration(200)
+  //   .attr('r', 12)
+  //   .transition()
+  //   .duration(200)
+  //   .attr('r', 8);
+    
+  // draggedCircle
+  //   .transition()
+  //   .duration(200)
+  //   .attr('r', 12)
+  //   .transition()
+  //   .duration(200)
+  //   .attr('r', 8);
+
+  
 }

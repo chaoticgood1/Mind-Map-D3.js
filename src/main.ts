@@ -40,7 +40,7 @@ async function renderTree() {
   let flatData = get(nodeData);
   if (flatData.length === 0) {
     // flatData = Seeder.generateFlatData(5, 4);
-    flatData = Seeder.generateFlatData(2, 1);
+    flatData = Seeder.generateFlatData(1, 1);
     // console.log(flatData);
     nodeData.set(flatData);
   }
@@ -220,7 +220,7 @@ function init() {
   renderTree();
   // AddNode.init();
   // SaveManager.init();
-  // Open.init();
+  // import('./file/Open').then(module => module.init());
 
   // New feature initialization
   // import('./components/DeleteNode').then(module => module.init());
