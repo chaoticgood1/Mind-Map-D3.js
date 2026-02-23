@@ -15,8 +15,21 @@ export const Edit = {
       }
     });
 
+    // Add save button listener with bound context
+    document.addEventListener('click', this.handleClick.bind(this));
+
     // Return cleanup function
-    return () => unsubscribeSelectedNode();
+    return () => {
+      unsubscribeSelectedNode();
+      document.removeEventListener('click', this.handleClick.bind(this));
+    };
+  },
+
+  handleClick(event: MouseEvent) {
+    const saveButton = document.getElementById('save-button');
+    if (saveButton && event.target && saveButton.contains(event.target as Node)) {
+      this.save();
+    }
   },
 
   save() {

@@ -30,10 +30,10 @@
     </div>
 
     <div class="flex gap-2">
-      <button id="save-button" data-testid="save-button" class="border p-2 bg-blue-500 text-white" onclick={() => Edit.save()}>
+      <button id="save-button" data-testid="save-button" class="border p-2 bg-blue-500 text-white">
         Save
       </button>
-      <button id="cancel-button" data-testid="cancel-button" class="border p-2 bg-gray-500 text-white" onclick={() => Edit.cancel()}>
+      <button id="cancel-button" data-testid="cancel-button" class="border p-2 bg-gray-500 text-white">
         Cancel
       </button>
     </div>
