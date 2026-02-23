@@ -5,49 +5,50 @@ import { Data } from "../../Data";
 
 export const AddNode = {
   init() {
-    // Listen for tab key when there's a selected node
-    document.addEventListener('keydown', this.handleKeyDown.bind(this));
-    // Listen for save button clicks
-    document.addEventListener('click', this.handleClick.bind(this));
-  },
-
-  handleKeyDown(event: KeyboardEvent) {
-    if (event.key === 'Tab' && get(selectedNode)) {
-      event.preventDefault();
-      titlePlaceholder.set('Add Title');
-      bodyPlaceholder.set('Add Body');
-      title.set('');
-      body.set('');
-      currentMode.set(Mode.Add);
-    }
-  },
-
-  handleClick(event: MouseEvent) {
-    const saveButton = document.getElementById('save-button');
-    if (saveButton && event.target && saveButton.contains(event.target as Node)) {
-      this.save();
-    }
-  },
-
-  save() {
-    console.log("Save")
-    if (get(currentMode) !== Mode.Add) {
-      return;
-    }
-    
-    const titleValue = get(title);
-    const bodyValue = get(body);
-    
-    createChild(titleValue, bodyValue);
-    
-    // Reset the form and mode
-    title.set('');
-    body.set('');
-    currentMode.set(Mode.None);
+    document.addEventListener('keydown', handleKeyDown);
+    document.addEventListener('click', handleClick);
   },
 };
 
-export function createChild(titleValue?: string, bodyValue?: string) {
+function handleKeyDown(event: KeyboardEvent) {
+  if (event.key === 'Tab' && get(selectedNode)) {
+    event.preventDefault();
+    titlePlaceholder.set('Add Title');
+    bodyPlaceholder.set('Add Body');
+    title.set('');
+    body.set('');
+    currentMode.set(Mode.Add);
+  }
+}
+
+function handleClick(event: MouseEvent) {
+  const saveButton = document.getElementById('save-button');
+  if (saveButton && event.target && saveButton.contains(event.target as Node)) {
+    save();
+  }
+}
+
+
+function save() {
+  console.log("Save")
+  if (get(currentMode) !== Mode.Add) {
+    return;
+  }
+  
+  const titleValue = get(title);
+  const bodyValue = get(body);
+  
+  createChild(titleValue, bodyValue);
+  
+  // Reset the form and mode
+  title.set('');
+  body.set('');
+  currentMode.set(Mode.None);
+}
+
+
+
+function createChild(titleValue?: string, bodyValue?: string) {
   const selected = get(selectedNode);
   if (!selected) {
     return;
@@ -81,4 +82,10 @@ export function createChild(titleValue?: string, bodyValue?: string) {
     
     return updatedData;
   });
+
+  // Trigger tree update to maintain selection
+  setTimeout(() => {
+    const updateEvent = new CustomEvent('update-tree');
+    window.dispatchEvent(updateEvent);
+  }, 50);
 }

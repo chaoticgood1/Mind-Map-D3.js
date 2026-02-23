@@ -257,32 +257,24 @@ window.addEventListener('update-tree', () => {
 
 nodeData.subscribe(() => {
   if (root && svg && gNode && gLink) {
-    // isDataUpdating = true;
     const flatData = get(nodeData);
     root = initRoot(flatData);
     
-    // // Maintain the current selection if it still exists in the new root
-    // const currentSelection = get(selectedNode);
-    // let source = root; // Default source for transition
-    
-    // if (currentSelection) {
-    //   const found = root.descendants().find(d => d.id === currentSelection.id);
-    //   if (found) {
-    //     source = found;
-    //     // Update the selectedNode store with the NEW hierarchy node object
-    //     // so that (get(selectedNode) === d) in Nodes.ts works!
-    //     selectedNode.set(found);
-    //   }
-    // }
-
-    let source = root;
+    // Maintain the current selection if it still exists in the new root
     const currentSelection = get(selectedNode);
+    let source = root; // Default source for transition
+    
     if (currentSelection) {
-      source = currentSelection;
+      const found = root.descendants().find(d => d.data.id === currentSelection.data.id);
+      if (found) {
+        source = found;
+        // Update the selectedNode store with the NEW hierarchy node object
+        // so that (get(selectedNode) === d) in Nodes.ts works!
+        selectedNode.set(found);
+      }
     }
     
     update(svg, root, gNode, gLink, source);
-    // isDataUpdating = false;
   }
 });
 
