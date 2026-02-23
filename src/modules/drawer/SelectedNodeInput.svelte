@@ -6,11 +6,6 @@
 
   Edit.init();
   AddNode.init();
-  
-  // Debug: Log selectedNode changes
-  selectedNode.subscribe(value => {
-    console.log('SelectedNodeInput - selectedNode changed:', value);
-  });
 </script>
 
 {#if $selectedNode}

@@ -13,37 +13,7 @@ export const AddNode = {
 function handleKeyDown(event: KeyboardEvent) {
   if (event.key === 'Tab' && get(selectedNode)) {
     event.preventDefault();
-    
-    const currentModeValue = get(currentMode);
-    const titleValue = get(title);
-    
-    if (currentModeValue === Mode.Add && titleValue.trim()) {
-      // If in Add mode and title has content, save current node
-      save();
-      // Then start new add process
-      titlePlaceholder.set('Add Title');
-      bodyPlaceholder.set('Add Body');
-      title.set('');
-      body.set('');
-      currentMode.set(Mode.Add);
-    } else if (currentModeValue === Mode.Add && !titleValue.trim()) {
-      // If in Add mode and title is empty, cancel and go to edit mode
-      const selected = get(selectedNode);
-      if (selected) {
-        titlePlaceholder.set('Edit title');
-        bodyPlaceholder.set('Edit body');
-        title.set(selected.data.label || '');
-        body.set(selected.data.body || '');
-        currentMode.set(Mode.Edit);
-      }
-    } else if (currentModeValue !== Mode.Add) {
-      // If not in Add mode, start add process
-      titlePlaceholder.set('Add Title');
-      bodyPlaceholder.set('Add Body');
-      title.set('');
-      body.set('');
-      currentMode.set(Mode.Add);
-    }
+    save();
   }
 }
 
@@ -56,33 +26,42 @@ function handleClick(event: MouseEvent) {
 
 
 function save() {
-  console.log("Save")
-  if (get(currentMode) !== Mode.Add) {
-    return;
-  }
-  
+  const currentModeValue = get(currentMode);
   const titleValue = get(title);
   
-  if (!titleValue.trim()) {
-    // If title is empty, cancel and go to edit mode
-    const selected = get(selectedNode);
-    if (selected) {
-      titlePlaceholder.set('Edit title');
-      bodyPlaceholder.set('Edit body');
-      title.set(selected.data.label || '');
-      body.set(selected.data.body || '');
-      currentMode.set(Mode.Edit);
+  if (currentModeValue === Mode.Add) {
+    // If in Add mode and title has content, save current node
+    if (!titleValue.trim()) {
+      // If title is empty, cancel and go to edit mode
+      const selected = get(selectedNode);
+      if (selected) {
+        titlePlaceholder.set('Edit title');
+        bodyPlaceholder.set('Edit body');
+        title.set(selected.data.label || '');
+        body.set(selected.data.body || '');
+        currentMode.set(Mode.Edit);
+      }
+      return;
     }
-    return;
+    
+    // If title has content, create child and continue in add mode
+    const bodyValue = get(body);
+    createChild(titleValue, bodyValue);
+    
+    // Reset form and stay in add mode for continuous creation
+    title.set('');
+    body.set('');
+    titlePlaceholder.set('Add Title');
+    bodyPlaceholder.set('Add Body');
+    currentMode.set(Mode.Add);
+  } else {
+    // If not in Add mode (i.e., in Edit mode), start add process
+    titlePlaceholder.set('Add Title');
+    bodyPlaceholder.set('Add Body');
+    title.set('');
+    body.set('');
+    currentMode.set(Mode.Add);
   }
-  
-  const bodyValue = get(body);
-  createChild(titleValue, bodyValue);
-  
-  // Reset the form and mode
-  title.set('');
-  body.set('');
-  currentMode.set(Mode.None);
 }
 
 

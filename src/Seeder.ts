@@ -43,7 +43,7 @@ export function generateFlatData(maxDepth: number, maxChildren: number = 5): Dat
   const rootId = "1";
   flatList.push({
     id: rootId,
-    label: "Root Node",
+    label: "Root",
     body: '',
     childrenIds: []
   });

@@ -18,7 +18,7 @@ test.describe('Add Node E2E Tests', () => {
     await page.keyboard.press('Tab');
     
     // Check if form is visible with correct placeholders
-    await expect(page.locator('[data-testid="drawer"]')).toBeVisible({ timeout: 2000 });
+    await expect(page.locator('[data-testid="node-input"]')).toBeVisible({ timeout: 2000 });
     await expect(page.locator('[data-testid="title-input"]')).toHaveAttribute('placeholder', 'Add Title');
     await expect(page.locator('[data-testid="body-input"]')).toHaveAttribute('placeholder', 'Add Body');
     
@@ -27,7 +27,7 @@ test.describe('Add Node E2E Tests', () => {
     await expect(page.locator('[data-testid="body-input"]')).toHaveValue('');
   });
 
-  test.only('should add child node when save button is clicked', async ({ page }) => {
+  test('should add child node when save button is clicked', async ({ page }) => {
     // Select a node and open add form
     await page.locator('.node-group').first().click({ timeout: 500 });
     await page.waitForTimeout(100);
@@ -141,7 +141,7 @@ test.describe('Add Node E2E Tests', () => {
     
     // Should contain the selected node's data (Root Node)
     const titleValue = await page.locator('[data-testid="title-input"]').inputValue();
-    expect(titleValue).toBe('Root Node');
+    expect(titleValue).toBe('Root');
   });
 
   test('should maintain parent selection after adding child', async ({ page }) => {
@@ -176,8 +176,8 @@ test.describe('Add Node E2E Tests', () => {
     await page.keyboard.press('Tab');
     await page.waitForTimeout(500);
     
-    // Check that drawer is not visible (no form opened)
-    await expect(page.locator('[data-testid="drawer"]')).not.toBeVisible();
+    // Check that node-input is not visible (no form opened)
+    await expect(page.locator('[data-testid="node-input"]')).not.toBeVisible();
     
     // Check that no new nodes were created
     const nodeCount = await page.locator('.node-group').count();
