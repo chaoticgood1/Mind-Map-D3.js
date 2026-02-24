@@ -7,6 +7,7 @@ import App from './App.svelte';
 import { nodeData, selectedNode } from './registry';
 import { get } from 'svelte/store';
 import * as Links from './renderer/Links';
+import { Cancel } from './modules/Cancel';
 
 // Constants moved to top-level so all functions can see them
 const width = window.innerWidth;
@@ -218,6 +219,7 @@ mount(App, {
 
 function init() {
   renderTree();
+  Cancel.init();
   // AddNode.init();
   // SaveManager.init();
   // import('./file/Open').then(module => module.init());
@@ -228,6 +230,8 @@ function init() {
   // import('./components/Paste').then(module => module.init());
   // import('./components/Edit').then(module => module.init());
   // import('./modules/DragNode').then(module => module.init());
+  
+  import('./modules/Cancel').then(module => module.Cancel.init());
 }
 
 if (document.readyState === 'loading') {
