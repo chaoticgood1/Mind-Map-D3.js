@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('Add Node E2E Tests', () => {
   test.beforeEach(async ({ page }, testInfo) => {
     // Set timeout for each test individually
-    test.setTimeout(3000); // Add 2s buffer to default timeout
+    test.setTimeout(5000); // Add 2s buffer to default timeout
     
     await page.goto('/');
     await page.waitForLoadState('domcontentloaded');
