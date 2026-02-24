@@ -17,7 +17,6 @@ test.describe('Mind Map E2E Tests', () => {
 
   test('should check if same text is in title input', async ({ page }) => {
     const rootText = "Root"
-
     await page.locator(`.node-group:has-text("${rootText}")`).click({ timeout: 500 });
     const titleInput = await page.locator('[data-testid="title-input"]').inputValue();
     expect(titleInput).toBe(rootText);
