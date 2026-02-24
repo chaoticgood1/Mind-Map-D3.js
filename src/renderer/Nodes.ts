@@ -98,11 +98,11 @@ export function initNode(
 function checkCollision(draggedNode: HierarchyNode, draggedCircleElement: d3.Selection<SVGCircleElement, any, any, any>): HierarchyNode | null {
   let collidedNode: HierarchyNode | null = null;
   
-  console.log(`=== Checking collision for dragged node "${draggedNode.data.label}" at (${draggedNode.x}, ${draggedNode.y}) ===`);
+  // console.log(`=== Checking collision for dragged node "${draggedNode.data.label}" at (${draggedNode.x}, ${draggedNode.y}) ===`);
   
   // Get the dragged circle radius once
   const draggedRadius = parseFloat(draggedCircleElement.attr('r')) || 8;
-  console.log(`Dragged circle radius: ${draggedRadius}`);
+  // console.log(`Dragged circle radius: ${draggedRadius}`);
   
   let checkCount = 0;
   d3.selectAll('circle').each(function() {
@@ -112,27 +112,37 @@ function checkCollision(draggedNode: HierarchyNode, draggedCircleElement: d3.Sel
     
     // Skip checking collision with the dragged node itself
     if (nodeData === draggedNode) {
-      console.log(`Skipping self: ${nodeData.data.label}`);
+      // console.log(`Skipping self: ${nodeData.data.label}`);
       return;
     }
     
-    const draggedX = draggedNode.x;
-    const draggedY = draggedNode.y;
-    const targetX = nodeData.x;
-    const targetY = nodeData.y;
+    // Get actual visual positions from the DOM transforms
+    const draggedCircleTransform = d3.select(draggedCircleElement.node()!.parentNode as SVGGElement).attr("transform");
+    const draggedMatch = draggedCircleTransform.match(/translate\(([^,]+),([^)]+)\)/);
+    const draggedX = draggedMatch ? parseFloat(draggedMatch[1]) : draggedNode.x;
+    const draggedY = draggedMatch ? parseFloat(draggedMatch[2]) : draggedNode.y;
+    
+    const targetNode = circle.node() as SVGCircleElement;
+    if (!targetNode || !targetNode.parentNode) return;
+    const targetParentNode = targetNode.parentNode as SVGGElement;
+    const targetCircleTransform = d3.select(targetParentNode).attr("transform");
+    const targetMatch = targetCircleTransform.match(/translate\(([^,]+),([^)]+)\)/);
+    const targetX = targetMatch ? parseFloat(targetMatch[1]) : nodeData.x;
+    const targetY = targetMatch ? parseFloat(targetMatch[2]) : nodeData.y;
     
     // Get the actual radius of the target circle
-    const targetRadius = parseFloat(circle.attr('r')) || 8;
+    // const targetRadius = parseFloat(circle.attr('r')) || 10;
+    const targetRadius = 10;
     
     // Calculate distance between centers
     const distance = Math.sqrt(Math.pow(draggedX - targetX, 2) + Math.pow(draggedY - targetY, 2));
     
-    console.log(`Check #${checkCount}: Against "${nodeData.data.label}" at (${targetX}, ${targetY}), distance: ${distance}, draggedRadius: ${draggedRadius}, targetRadius: ${targetRadius}`);
+    // console.log(`Check #${checkCount}: Against "${nodeData.data.label}" at (${targetX}, ${targetY}), distance: ${distance}, draggedRadius: ${draggedRadius}, targetRadius: ${targetRadius}`);
     
     // Check if circles are touching or overlapping based on actual radii
     const collisionThreshold = draggedRadius + targetRadius;
     
-    console.log(`Distance: ${distance} <= Threshold: ${collisionThreshold}? ${distance <= collisionThreshold}`);
+    // console.log(`Distance: ${distance} <= Threshold: ${collisionThreshold}? ${distance <= collisionThreshold}`);
     
     if (distance <= collisionThreshold) {
       collidedNode = nodeData;
@@ -140,7 +150,7 @@ function checkCollision(draggedNode: HierarchyNode, draggedCircleElement: d3.Sel
     }
   });
   
-  console.log(`=== Final collision result: ${collidedNode ? collidedNode.data.label : 'None'} ===`);
+  // console.log(`=== Final collision result: ${collidedNode ? collidedNode.data.label : 'None'} ===`);
   return collidedNode;
 }
 
@@ -225,7 +235,7 @@ function dragInit(): d3.DragBehavior<SVGCircleElement, HierarchyNode, d3.Subject
       if (collidedNode) {
         // Change color to red when colliding
         currentCircle.style('fill', 'red');
-        console.log(`COLLIDING with ${collidedNode.data.label}`);
+        // console.log(`COLLIDING with ${collidedNode.data.label}`);
       } else {
         // Reset to default color when not colliding
         currentCircle.style('fill', null);
