@@ -40,8 +40,8 @@ async function renderTree() {
 
   let flatData = get(nodeData);
   if (flatData.length === 0) {
-    flatData = Seeder.generateFlatData(5, 4);
-    // flatData = Seeder.generateFlatData(1, 1);
+    // flatData = Seeder.generateFlatData(5, 4);
+    flatData = Seeder.generateFlatData(1, 1);
     // console.log(flatData);
     nodeData.set(flatData);
   }
