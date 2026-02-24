@@ -214,8 +214,8 @@ function init() {
   Cancel.init();
   // AddNode.init();
   // SaveManager.init();
-  import('./file/SaveManager').then(module => module.init());
-  import('./file/Open').then(module => module.init());
+  import('./modules/Save').then(module => module.init());
+  import('./modules/Open').then(module => module.init());
 
   // New feature initialization
   // import('./components/DeleteNode').then(module => module.init());
