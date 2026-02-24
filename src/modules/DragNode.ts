@@ -112,21 +112,38 @@ export const DragNode = {
       if (collidedNode) {
         // console.log(`Node "${d.data.label}" collided with "${collidedNode.data.label}"`);
         
-        // Call the collidesWith function
-        collidesWith(collidedNode, d);
+        // Call the collidesWith function and check if it was successful
+        const collisionHandled = collidesWith(collidedNode, d);
+        if (!collisionHandled) {
+          // Collision was not handled (e.g., invalid operation), return to original position
+          console.log(`Collision not handled - returning "${d.data.label}" to original position`);
+          
+          // Return to original position
+          d.x = d.dragStartX || 0;
+          d.y = d.dragStartY || 0;
+          
+          // Update the transform with animation
+          const nodeGroup = d3.select(this.parentNode as SVGGElement);
+          nodeGroup.transition()
+            .duration(300)
+            .attr("transform", `translate(${d.dragStartX || 0},${d.dragStartY || 0})`);
+          
+          // Clear the manually positioned flag since we're returning to original
+          (d as any).manuallyPositioned = false;
+        }
       } else {
         // No collision detected - return to original position
         console.log(`No collision detected - returning "${d.data.label}" to original position`);
         
         // Return to original position
-        d.x = d.dragStartX;
-        d.y = d.dragStartY;
+        d.x = d.dragStartX || 0;
+        d.y = d.dragStartY || 0;
         
         // Update the transform with animation
         const nodeGroup = d3.select(this.parentNode as SVGGElement);
         nodeGroup.transition()
           .duration(300)
-          .attr("transform", `translate(${d.dragStartX},${d.dragStartY})`);
+          .attr("transform", `translate(${d.dragStartX || 0},${d.dragStartY || 0})`);
         
         // Clear the manually positioned flag since we're returning to original
         (d as any).manuallyPositioned = false;
@@ -198,51 +215,74 @@ function checkCollision(draggedNode: HierarchyNode, draggedCircleElement: d3.Sel
 
 
 
-export function collidesWith(targetNode: HierarchyNode, draggedNodeData: HierarchyNode): void {
-  console.log(`collidesWith() called: ${targetNode.data.label} collided with ${draggedNodeData.data.label}`);
+function collidesWith(targetNode: HierarchyNode, draggedNodeData: HierarchyNode): boolean {
+  // console.log(`collidesWith() called: ${targetNode.data.label} collided with ${draggedNodeData.data.label}`);
+  
+  // Get actual visual positions from the DOM transforms for accurate comparison
+  const targetCircleElement = d3.selectAll('circle').filter((d: any) => d === targetNode).node() as SVGCircleElement;
+  const draggedCircleElement = d3.selectAll('circle').filter((d: any) => d === draggedNodeData).node() as SVGCircleElement;
+  
+  if (!targetCircleElement || !draggedCircleElement) {
+    console.log('Could not find circle elements, using hierarchy positions');
+    console.log(`targetNode.x: ${targetNode.x}, draggedNodeData.x: ${draggedNodeData.x}`);
+  } else {
+    // Get actual transform positions
+    const targetParentNode = targetCircleElement.parentNode as SVGGElement;
+    const targetCircleTransform = d3.select(targetParentNode).attr("transform");
+    const targetMatch = targetCircleTransform.match(/translate\(([^,]+),([^)]+)\)/);
+    const targetActualX = targetMatch ? parseFloat(targetMatch[1]) : targetNode.x;
+    
+    const draggedParentNode = draggedCircleElement.parentNode as SVGGElement;
+    const draggedCircleTransform = d3.select(draggedParentNode).attr("transform");
+    const draggedMatch = draggedCircleTransform.match(/translate\(([^,]+),([^)]+)\)/);
+    const draggedActualX = draggedMatch ? parseFloat(draggedMatch[1]) : draggedNodeData.x;
+    
+    targetNode.x = targetActualX;
+    draggedNodeData.x = draggedActualX;
+  }
   
   const currentData = get(nodeData);
   
   // Check if targetNode and draggedNodeData are siblings
   if (areSiblings(currentData, targetNode, draggedNodeData)) {
     // For siblings: if targetNode x > draggedNodeData x, swap positions; else make draggedNodeData child of targetNode
-    // if (targetNode.x > draggedNodeData.x) {
+    if (targetNode.x > draggedNodeData.x) {
       swapSiblingPositions(currentData, targetNode, draggedNodeData);
-    // } else {
-    //   addToNewParent(currentData, targetNode, draggedNodeData);
-    // }
-    return;
+      return true;
+    }
   }
   
   // Check if targetNode is already the current parent
   if (isAlreadyParent(currentData, targetNode, draggedNodeData)) {
-    console.log(`Target node ${targetNode.data.label} is already the parent of ${draggedNodeData.data.label}, skipping reparenting`);
-    return;
+    // console.log(`Target node ${targetNode.data.label} is already the parent of ${draggedNodeData.data.label}, skipping reparenting`);
+    return false;
   }
   
   // Check if targetNode is a descendant of draggedNodeData
   if (isDescendant(currentData, currentData.find(node => node.id === draggedNodeData.data.id), targetNode.data.id)) {
-    console.log(`Target node ${targetNode.data.label} is a descendant of ${draggedNodeData.data.label}, skipping reparenting to prevent cycles`);
-    return;
+    // console.log(`Target node ${targetNode.data.label} is a descendant of ${draggedNodeData.data.label}, skipping reparenting to prevent cycles`);
+    return false;
   }
   
   // Remove from current parent and add to new parent
   removeFromCurrentParent(currentData, draggedNodeData);
   addToNewParent(currentData, targetNode, draggedNodeData);
+  return true;
 }
 
-// Check if two nodes are siblings (share the same parent)
 function areSiblings(currentData: Data[], node1: HierarchyNode, node2: HierarchyNode): boolean {
+  // console.log(`areSiblings() called for ${node1.data.label} and ${node2.data.label}`);
+  
   const parent1Index = currentData.findIndex(node => 
     node.childrenIds && node.childrenIds.includes(node1.data.id)
   );
   const parent2Index = currentData.findIndex(node => 
     node.childrenIds && node.childrenIds.includes(node2.data.id)
   );
+  
   return parent1Index !== -1 && parent1Index === parent2Index;
 }
 
-// Swap positions of two sibling nodes by swapping their indices in the parent's children array
 function swapSiblingPositions(currentData: Data[], node1: HierarchyNode, node2: HierarchyNode): void {
   const parentIndex = currentData.findIndex(node => 
     node.childrenIds && node.childrenIds.includes(node1.data.id)
@@ -261,7 +301,6 @@ function swapSiblingPositions(currentData: Data[], node1: HierarchyNode, node2: 
   }
 }
 
-// Check if targetNode is already the parent of draggedNodeData
 function isAlreadyParent(currentData: Data[], targetNode: HierarchyNode, draggedNodeData: HierarchyNode): boolean {
   const currentParentIndex = currentData.findIndex(node => 
     node.childrenIds && node.childrenIds.includes(draggedNodeData.data.id)
@@ -270,7 +309,6 @@ function isAlreadyParent(currentData: Data[], targetNode: HierarchyNode, dragged
   return currentParentIndex !== -1 && targetNodeIndex === currentParentIndex;
 }
 
-// Check if targetNode is a descendant of draggedNodeData (recursive)
 function isDescendant(currentData: Data[], parentNode: Data | undefined, targetId: string): boolean {
   if (!parentNode || !parentNode.childrenIds || parentNode.childrenIds.length === 0) return false;
   
@@ -286,7 +324,6 @@ function isDescendant(currentData: Data[], parentNode: Data | undefined, targetI
   return false;
 }
 
-// Remove draggedNodeData from its current parent
 function removeFromCurrentParent(currentData: Data[], draggedNodeData: HierarchyNode): void {
   const currentParentIndex = currentData.findIndex(node => 
     node.childrenIds && node.childrenIds.includes(draggedNodeData.data.id)
@@ -296,17 +333,16 @@ function removeFromCurrentParent(currentData: Data[], draggedNodeData: Hierarchy
     currentData[currentParentIndex].childrenIds = currentData[currentParentIndex].childrenIds.filter(
       id => id !== draggedNodeData.data.id
     );
-    console.log(`Removed ${draggedNodeData.data.label} from parent ${currentData[currentParentIndex].label}`);
+    // console.log(`Removed ${draggedNodeData.data.label} from parent ${currentData[currentParentIndex].label}`);
   }
 }
 
-// Add draggedNodeData to the new target parent
 function addToNewParent(currentData: Data[], targetNode: HierarchyNode, draggedNodeData: HierarchyNode): void {
   const targetNodeIndex = currentData.findIndex(node => node.id === targetNode.data.id);
   
   if (targetNodeIndex !== -1 && draggedNodeData.data.id) {
     currentData[targetNodeIndex].childrenIds = [...(currentData[targetNodeIndex].childrenIds || []), draggedNodeData.data.id];
     nodeData.update(data => data);
-    console.log(`Set ${draggedNodeData.data.label} as child of ${targetNode.data.label}`);
+    // console.log(`Set ${draggedNodeData.data.label} as child of ${targetNode.data.label}`);
   }
 }

@@ -289,8 +289,6 @@ nodeData.subscribe(() => {
     }
     
     update(svg, root, gNode, gLink, source);
-
-    console.log("Update")
   }
 });
 
