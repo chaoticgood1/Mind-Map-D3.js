@@ -1,0 +1,18 @@
+{
+  "label": "Test Root",
+  "children": [
+    {
+      "label": "Test Child 1",
+      "children": []
+    },
+    {
+      "label": "Test Child 2", 
+      "children": [
+        {
+          "label": "Test Grandchild",
+          "children": []
+        }
+      ]
+    }
+  ]
+}
