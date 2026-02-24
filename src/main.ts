@@ -108,6 +108,16 @@ function initRoot(flatData: Data[]) {
   root.x0 = 0;
   root.y0 = 0;
 
+  // Sort the hierarchy based on childrenIds order to ensure tree layout respects sibling positions
+  root.sort((a, b) => {
+    if (!a.parent || !b.parent) return 0;
+    const parentData = (a.parent as any).data;
+    if (!parentData.childrenIds) return 0;
+    const aIndex = parentData.childrenIds.indexOf(a.data.id);
+    const bIndex = parentData.childrenIds.indexOf(b.data.id);
+    return aIndex - bIndex;
+  });
+
   root.descendants().forEach((d: any) => {
     d._children = d.children;
   });
@@ -279,6 +289,8 @@ nodeData.subscribe(() => {
     }
     
     update(svg, root, gNode, gLink, source);
+
+    console.log("Update")
   }
 });
 
