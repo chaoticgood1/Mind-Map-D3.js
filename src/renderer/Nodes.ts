@@ -19,7 +19,7 @@ export function initNode(
     .enter()
     .append("g")
     .attr("class", "node-group")
-    .attr("transform", _d => `translate(${source?.y0 ?? source?.y},${source?.x0 ?? source?.x})`)
+    .attr("transform", _d => `translate(${source?.y0 ?? source?.y ?? 0},${source?.x0 ?? source?.x ?? 0})`)
     .attr("fill-opacity", 0)
     
   // Initialize drag behavior
@@ -59,7 +59,7 @@ export function initNode(
   const nodeUpdate = node
     .merge(nodeEnter)
     .transition(transition)
-    .attr("transform", d => d.manuallyPositioned ? d3.select(`[data-node-id="${d.id}"]`).attr('transform') || `translate(${d.y},${d.x})` : `translate(${d.y},${d.x})`)
+    .attr("transform", d => (d as any).manuallyPositioned ? d3.select(`[data-node-id="${d.id}"]`).attr('transform') || `translate(${d.y},${d.x})` : `translate(${d.y},${d.x})`)
     .attr("fill-opacity", 1)
     .style("font-weight", (d) => {
       const value = get(selectedNode);
@@ -89,7 +89,7 @@ export function initNode(
     .exit()
     .transition(transition)
     .remove()
-    .attr("transform", _d => `translate(${source.y},${source.x})`)
+    .attr("transform", _d => `translate(${source?.y ?? 0},${source?.x ?? 0})`)
     .attr("fill-opacity", 0)
     .on("end", function() {
       // selectedNode.set(new Data());

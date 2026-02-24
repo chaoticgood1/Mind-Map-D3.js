@@ -14,7 +14,9 @@ export function init(
   const diagonal = d3.linkHorizontal<any, any>().x(d => d.y).y(d => d.x);
   const linkEnter = link.enter().append("path")
     .attr("d", _d => {
-      const o = { x: source?.x0 ?? source?.x, y: source?.y0 ?? source?.y };
+      const sourceX = source?.x0 ?? source?.x ?? 0;
+      const sourceY = source?.y0 ?? source?.y ?? 0;
+      const o = { x: sourceX, y: sourceY };
       return diagonal({ source: o, target: o });
     });
 
@@ -26,7 +28,9 @@ export function init(
     .duration(750)
     .remove()
     .attr("d", _d => {
-      const o = { x: source?.x, y: source?.y };
+      const sourceX = source?.x ?? 0;
+      const sourceY = source?.y ?? 0;
+      const o = { x: sourceX, y: sourceY };
       return diagonal({ source: o, target: o });
     });
 }

@@ -132,7 +132,7 @@ function update(
   gLink: d3.Selection<SVGGElement, unknown, null, undefined>,
   source: HierarchyNode | undefined,
 ) {
-  initTreeLayout(root);
+  root = initTreeLayout(root);
   const transition = initTransition(svg, root);
 
   Nodes.initNode(root, gNode, source, transition);
@@ -149,28 +149,10 @@ export function refreshTree() {
 function initTreeLayout(root: HierarchyNode) {
   const treeLayout = d3.tree<Data>().nodeSize([horizontalSpacing, verticalSpacing]);
 
-  // Create a custom tree layout that respects manually positioned nodes
-  const customTreeLayout = {
-    ...treeLayout,
-    root: function() {
-      const layoutRoot = treeLayout(root);
-
-      // After layout, restore manually positioned nodes to their custom positions
-      layoutRoot.each((node: any) => {
-        if (node.manuallyPositioned) {
-          // Keep the manually set position
-          return;
-        }
-      });
-
-      return layoutRoot;
-    }
-  };
-
-  // Apply the layout but preserve manually positioned nodes
+  // Apply the tree layout to get coordinates
   const layoutRoot = treeLayout(root);
 
-  // The tree layout has been applied, but manually positioned nodes keep their positions
+  // The tree layout has been applied, nodes now have x, y coordinates
   return layoutRoot;
 }
 
@@ -232,7 +214,8 @@ function init() {
   Cancel.init();
   // AddNode.init();
   // SaveManager.init();
-  // import('./file/Open').then(module => module.init());
+  import('./file/SaveManager').then(module => module.init());
+  import('./file/Open').then(module => module.init());
 
   // New feature initialization
   // import('./components/DeleteNode').then(module => module.init());
