@@ -1,5 +1,5 @@
-import { title, body, isDirty, currentMode, Mode } from "./LocalRegistry";
-import { selectedNode, nodeData } from "../../registry";
+import { title, body, isDirty, currentMode, Mode } from "./internal";
+import { selectedNode, nodeData } from "../../../registry";
 import { get } from 'svelte/store';
 
 export const Edit = {

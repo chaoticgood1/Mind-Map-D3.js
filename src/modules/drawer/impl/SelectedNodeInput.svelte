@@ -1,6 +1,6 @@
 <script lang="ts">
-  import { selectedNode } from "../../registry";
-  import { body, title, titlePlaceholder, bodyPlaceholder } from "./LocalRegistry";
+  import { selectedNode } from "../../../registry";
+  import { body, title, titlePlaceholder, bodyPlaceholder } from "./internal";
   import { Edit } from "./Edit";
   import { AddNode } from "./AddNode";
 

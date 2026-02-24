@@ -1,4 +1,4 @@
-import { currentMode, Mode } from './drawer/LocalRegistry';
+import { currentMode, Mode } from './drawer';
 
 export const Cancel = {
   init() {

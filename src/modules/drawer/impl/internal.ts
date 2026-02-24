@@ -1,10 +1,9 @@
-import { writable } from 'svelte/store';
-
 /**
- * @internal - Drawer module internal state only
- * Do not import this file from outside the drawer folder
- * Use the public API exported from index.ts instead
+ * Drawer module INTERNAL API
+ * Only for use within the drawer folder
  */
+
+import { writable } from 'svelte/store';
 
 // Mode enum for Edit/Add functionality
 export enum Mode {
@@ -13,7 +12,7 @@ export enum Mode {
   Add,
 }
 
-// Local drawer-specific state
+// Private drawer-specific state (only for internal use)
 export const title = writable<string>('');
 export const body = writable<string>('');
 export const isDirty = writable<boolean>(false);

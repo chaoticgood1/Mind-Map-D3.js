@@ -1,7 +1,7 @@
 import { get } from "svelte/store";
-import { selectedNode, nodeData } from "../../registry";
-import { currentMode, Mode, title, body, titlePlaceholder, bodyPlaceholder } from "./LocalRegistry";
-import { Data } from "../../Data";
+import { selectedNode, nodeData } from "../../../registry";
+import { currentMode, Mode, title, body, titlePlaceholder, bodyPlaceholder } from "./internal";
+import { Data } from "../../../Data";
 
 export const AddNode = {
   init() {

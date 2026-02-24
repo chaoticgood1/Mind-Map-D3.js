@@ -1,6 +1,5 @@
 import { writable } from 'svelte/store';
 import { Data, HierarchyNode } from './Data';
-import * as d3 from 'd3';
 
 export const drawerOpen = writable(true);
 export const preAddNode = writable(false);
