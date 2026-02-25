@@ -4,6 +4,26 @@ import { selectedNode } from '../registry';
 import { get } from 'svelte/store';
 import { DragNode } from '../modules/DragNode';
 
+const TEXT_WIDTH = 180;
+
+function wrapText(text: string, width: number): string[] {
+  const words = text.split(/\s+/);
+  const lines: string[] = [];
+  let line = '';
+  for (const word of words) {
+    const testLine = line + (line ? ' ' : '') + word;
+    // Rough estimate: 8px per character
+    if (testLine.length * 8 > width) {
+      if (line) lines.push(line);
+      line = word;
+    } else {
+      line = testLine;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
 export function initNode(
   root: HierarchyNode,
   gNode: d3.Selection<SVGGElement, unknown, null, undefined>,
@@ -43,16 +63,20 @@ export function initNode(
   
   
   nodeEnter.append("text")
-    .attr("dy", "0.31em")
     .attr("x", 10)
-    // .attr("x", d => d._children ? -8 : 8)
-    // .attr("text-anchor", d => d._children ? "end" : "start")
-    .text((d: any) => d.data.label)
+    .each(function(d) {
+      const textElement = d3.select(this);
+      const lines = wrapText(d.data.label, TEXT_WIDTH);
+      lines.forEach((line, i) => {
+        textElement.append('tspan')
+          .attr('x', 10)
+          .attr('dy', i === 0 ? `${0.35 - (lines.length - 1) * 0.6}em` : '1.2em')
+          .text(line);
+      });
+    })
     .attr("fill", "white")
     .on("click", (_e, d) => {
       selectedNode.set(d);
-      const editEvent = new CustomEvent('start-edit');
-      window.dispatchEvent(editEvent);
     })
 
   const nodeUpdate = node
@@ -68,7 +92,17 @@ export function initNode(
     })
 
   nodeUpdate.select("text")
-    .text((d: any) => d.data.label)
+    .each(function(d) {
+      const textElement = d3.select(this);
+      textElement.selectAll('tspan').remove();
+      const lines = wrapText(d.data.label, TEXT_WIDTH);
+      lines.forEach((line, i) => {
+        textElement.append('tspan')
+          .attr('x', 10)
+          .attr('dy', i === 0 ? `${0.35 - (lines.length - 1) * 0.6}em` : '1.2em')
+          .text(line);
+      });
+    })
     .attr("fill", (d) => {
       const value = get(selectedNode);
       if (value === d)
