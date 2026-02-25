@@ -134,17 +134,26 @@ test.describe('Open functionality', () => {
 
     const initialNodeCount = await page.locator('.node-group').count();
 
-    // Prevent default browser behavior and trigger our openFile function directly
-    await page.evaluate(() => {
-      const event = new KeyboardEvent('keydown', { 
-        key: 'o', 
-        ctrlKey: true,
-        bubbles: true,
-        cancelable: true
+    try {
+      // Prevent default browser behavior and trigger our openFile function directly
+      await page.evaluate(() => {
+        const event = new KeyboardEvent('keydown', { 
+          key: 'o', 
+          ctrlKey: true,
+          bubbles: true,
+          cancelable: true
+        });
+        document.dispatchEvent(event);
       });
-      document.dispatchEvent(event);
-    });
 
+      // Wait a bit for any potential operations to complete
+      await page.waitForTimeout(1000);
+    } catch (error) {
+      // Ignore errors from the mock throwing
+      console.log('Expected error from mock:', error.message);
+    }
+
+    // Ensure page is still accessible
     await page.waitForLoadState('networkidle');
 
     const finalNodeCount = await page.locator('.node-group').count();
