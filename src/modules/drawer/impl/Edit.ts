@@ -1,4 +1,4 @@
-import { title, body, isDirty, currentMode, Mode } from "./internal";
+import { title, body, isDirty, currentMode, Mode, focusTarget } from "./internal";
 import { selectedNode, nodeData } from "../../../registry";
 import { get } from 'svelte/store';
 
@@ -9,6 +9,7 @@ export const Edit = {
         currentMode.set(Mode.Edit);
         title.set(node.data.label || '');
         body.set(node.data.body || '');
+        focusTarget.set('title');
       } else {
         currentMode.set(Mode.None);
       }

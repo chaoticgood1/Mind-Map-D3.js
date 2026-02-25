@@ -4,7 +4,7 @@ import { selectedNode } from '../registry';
 import { get } from 'svelte/store';
 import { DragNode } from '../modules/DragNode';
 
-const TEXT_WIDTH = 180;
+const TEXT_WIDTH = 170;
 
 function wrapText(text: string, width: number): string[] {
   const words = text.split(/\s+/);

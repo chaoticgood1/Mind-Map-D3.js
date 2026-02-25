@@ -1,6 +1,6 @@
 import { get } from "svelte/store";
 import { selectedNode, nodeData } from "../../../registry";
-import { currentMode, Mode, title, body, titlePlaceholder, bodyPlaceholder } from "./internal";
+import { currentMode, Mode, title, body, titlePlaceholder, bodyPlaceholder, focusTarget } from "./internal";
 import { Data } from "../../../Data";
 
 export const AddNode = {
@@ -14,6 +14,7 @@ function handleKeyDown(event: KeyboardEvent) {
   if (event.key === 'Tab' && get(selectedNode)) {
     event.preventDefault();
     onEditMode();
+    focusTarget.set('title');
   }
 
   if (event.key === 'Enter' && get(selectedNode)) {

@@ -3,7 +3,7 @@
  * Only for use within the drawer folder
  */
 
-import { writable } from 'svelte/store';
+import { writable, derived } from 'svelte/store';
 
 // Mode enum for Edit/Add functionality
 export enum Mode {
@@ -19,3 +19,7 @@ export const isDirty = writable<boolean>(false);
 export const titlePlaceholder = writable<string>('Edit title');
 export const bodyPlaceholder = writable<string>('Edit body');
 export const currentMode = writable<Mode>(Mode.None);
+
+export const inputText = derived(currentMode, $currentMode => Mode[$currentMode]);
+
+export const focusTarget = writable<'title' | 'body' | null>(null);
