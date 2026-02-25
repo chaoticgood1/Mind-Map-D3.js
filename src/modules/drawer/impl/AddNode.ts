@@ -13,6 +13,11 @@ export const AddNode = {
 function handleKeyDown(event: KeyboardEvent) {
   if (event.key === 'Tab' && get(selectedNode)) {
     event.preventDefault();
+    onEditMode();
+  }
+
+  if (event.key === 'Enter' && get(selectedNode)) {
+    event.preventDefault();
     save();
   }
 }
@@ -21,6 +26,19 @@ function handleClick(event: MouseEvent) {
   const saveButton = document.getElementById('save-button');
   if (saveButton && event.target && saveButton.contains(event.target as Node)) {
     save();
+  }
+}
+
+function onEditMode() {
+  const currentModeValue = get(currentMode);
+  
+  if (currentModeValue !== Mode.Add) {
+    // If not in Add mode (i.e., in Edit mode), start add process
+    titlePlaceholder.set('Add Title');
+    bodyPlaceholder.set('Add Body');
+    title.set('');
+    body.set('');
+    currentMode.set(Mode.Add);
   }
 }
 

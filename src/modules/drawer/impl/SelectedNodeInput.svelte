@@ -1,6 +1,6 @@
 <script lang="ts">
   import { selectedNode } from "../../../registry";
-  import { body, title, titlePlaceholder, bodyPlaceholder } from "./internal";
+  import { body, title, titlePlaceholder, bodyPlaceholder, currentMode, Mode } from "./internal";
   import { Edit } from "./Edit";
   import { AddNode } from "./AddNode";
 
@@ -10,6 +10,7 @@
 
 {#if $selectedNode}
   <div id="node-input" data-testid="node-input" class="p-4 bg-white rounded shadow flex flex-col gap-4">
+    <text class="text-black">{Mode[$currentMode]}</text>
     <div>
       <input
         data-testid="title-input"

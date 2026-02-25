@@ -35,8 +35,6 @@ export function initNode(
       // Prevent click if this was part of a drag operation
       if (event.defaultPrevented) return;
 
-      console.log("click circle")
-
       d.children = d.children ? undefined : d._children;
       selectedNode.set(d);
       const editEvent = new CustomEvent('start-edit');

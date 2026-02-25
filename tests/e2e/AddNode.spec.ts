@@ -122,4 +122,38 @@ test.describe('Add Node E2E Tests', () => {
     const nodeCount = await page.locator('.node-group').count();
     expect(nodeCount).toBeGreaterThan(0); // Should have initial nodes but no new ones
   });
+
+  test('should add children using Tab key and Enter to finalize', async ({ page }) => {
+    const rootText = "Root"
+    const childText1 = "Child 1"
+    const childText2 = "Child 2"
+    await page.locator(`.node-group:has-text("${rootText}")`).click({ timeout: 2000 });
+    let parentNode = page.locator(`.node-group:has-text("${rootText}")`);
+    await expect(parentNode.locator('circle')).toHaveCSS('fill', 'rgb(0, 255, 0)');
+    
+    // Add child node
+    await page.keyboard.press('Tab');
+    await page.locator('[data-testid="title-input"]').fill(childText1);
+    await page.keyboard.press('Enter');
+    
+    parentNode = page.locator(`.node-group:has-text("${rootText}")`);
+    await expect(parentNode.locator('circle')).toHaveCSS('fill', 'rgb(0, 255, 0)');
+    
+    // Verify child is not selected
+    const childNode = page.locator(`.node-group:has-text("${childText1}")`);
+    await expect(childNode.locator('circle')).toHaveCSS('fill', 'rgb(255, 255, 255)');
+    
+    // Add another child node
+    await page.keyboard.press('Tab');
+    await page.locator('[data-testid="title-input"]').fill(childText2);
+    await page.keyboard.press('Enter');
+    
+    parentNode = page.locator(`.node-group:has-text("${rootText}")`);
+    await expect(parentNode.locator('circle')).toHaveCSS('fill', 'rgb(0, 255, 0)');
+    
+    // Verify second child is not selected
+    const childNode2 = page.locator(`.node-group:has-text("${childText2}")`);
+    await expect(childNode2.locator('circle')).toHaveCSS('fill', 'rgb(255, 255, 255)');
+  });
+
 });
