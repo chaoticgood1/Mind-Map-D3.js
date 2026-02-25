@@ -1,0 +1,47 @@
+[
+  {
+    "id": "1",
+    "label": "Root",
+    "body": "",
+    "childrenIds": [
+      "2",
+      "f36b9de7-231e-4e1d-929f-b2301c30c23a",
+      "90b3fe09-f2aa-4376-92a1-342a773fda50"
+    ]
+  },
+  {
+    "id": "2",
+    "label": "Node 2 (D1)",
+    "body": "",
+    "childrenIds": []
+  },
+  {
+    "id": "f36b9de7-231e-4e1d-929f-b2301c30c23a",
+    "label": "Root",
+    "body": "",
+    "childrenIds": [
+      "f66c79e9-b6e3-4995-af4b-23729b6fd884"
+    ]
+  },
+  {
+    "id": "f66c79e9-b6e3-4995-af4b-23729b6fd884",
+    "label": "Node 2 (D1)",
+    "body": "",
+    "childrenIds": []
+  },
+  {
+    "id": "90b3fe09-f2aa-4376-92a1-342a773fda50",
+    "label": "Root",
+    "body": "",
+    "childrenIds": [
+      "4a7a7d82-dec3-4422-8e0b-b39191bde5c1",
+      "f36b9de7-231e-4e1d-929f-b2301c30c23a"
+    ]
+  },
+  {
+    "id": "4a7a7d82-dec3-4422-8e0b-b39191bde5c1",
+    "label": "Node 2 (D1)",
+    "body": "",
+    "childrenIds": []
+  }
+]

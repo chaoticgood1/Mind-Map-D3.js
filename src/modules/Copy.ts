@@ -1,6 +1,5 @@
 import { get } from 'svelte/store';
-import { selectedNode, copiedData } from '../registry';
-import { Data } from '../Data';
+import { selectedNode, copiedData, nodeData } from '../registry';
 
 export function init() {
   window.addEventListener('keydown', (ev) => {
@@ -12,19 +11,14 @@ export function init() {
 }
 
 function copyNode() {
-  const nodeToCopy = get(selectedNode);
-  if (!nodeToCopy) return;
+  const selected = get(selectedNode);
+  if (!selected) return;
 
-  // Get all descendant nodes (D3 hierarchy already has this)
-  const descendants = nodeToCopy.descendants();
-  
-  // Convert hierarchy nodes back to flat Data format
-  const dataToCopy: Data[] = descendants.map(d => ({
-    ...d.data,
-    // We'll keep the relative structure but IDs will need to be unique when pasting
-    // For now we just store the data as-is
-  }));
+  const descendants = selected.descendants();
+  const allIds = [selected.id, ...descendants.map(d => d.id)];
 
-  copiedData.set(dataToCopy);
-  console.log('Copied nodes:', dataToCopy);
+  const copied = get(nodeData).filter(node => allIds.includes(node.id));
+  copiedData.set(copied);
+
+  console.log(copied)
 }
