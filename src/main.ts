@@ -212,17 +212,10 @@ mount(App, {
 function init() {
   renderTree();
   Cancel.init();
-  // AddNode.init();
-  // SaveManager.init();
   import('./modules/Save').then(module => module.init());
   import('./modules/Open').then(module => module.init());
-
-  // New feature initialization
-  // import('./components/DeleteNode').then(module => module.init());
-  // import('./components/Copy').then(module => module.init());
-  // import('./components/Paste').then(module => module.init());
-  // import('./components/Edit').then(module => module.init());
-  // import('./modules/DragNode').then(module => module.init());
+  import('./modules/Copy').then(module => module.init());
+  import('./modules/Paste').then(module => module.init());
   
   import('./modules/Cancel').then(module => module.Cancel.init());
 }
