@@ -16,7 +16,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: false, // Allow test.only for debugging
   retries: 0, // No retries for local debugging
-  workers: process.env.CI ? 8 : 8, // Use 8 workers both locally and in CI
+  workers: process.env.CI ? 2 : 2,
   reporter: 'html',
   use: {
     baseURL: process.env.BASE_URL || 'http://localhost:3000',
