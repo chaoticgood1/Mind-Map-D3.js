@@ -1,6 +1,6 @@
 <script lang="ts">
   import { selectedNode } from "../../../registry";
-  import { body, title, titlePlaceholder, currentMode, Mode, focusTarget } from "./internal";
+  import { body, title, titlePlaceholder, bodyPlaceholder, currentMode, Mode, focusTarget } from "./internal";
   import { Edit } from "./Edit";
   import { AddNode } from "./AddNode";
 
@@ -36,6 +36,7 @@
     <div
       contenteditable
       data-testid="body-input"
+      data-placeholder={$bodyPlaceholder}
       class="border p-2 w-full text-black bg-white focus:outline-none min-h-[100px] whitespace-pre-wrap"
       role="textbox"
       tabindex="0"

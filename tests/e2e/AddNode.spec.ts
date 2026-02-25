@@ -18,11 +18,11 @@ test.describe('Add Node E2E Tests', () => {
     // Check if form is visible with correct placeholders
     await expect(page.locator('[data-testid="node-input"]')).toBeVisible({ timeout: 1000 });
     await expect(page.locator('[data-testid="title-input"]')).toHaveAttribute('placeholder', 'Add Title');
-    await expect(page.locator('[data-testid="body-input"]')).toHaveAttribute('placeholder', 'Add Body');
+    await expect(page.locator('[data-testid="body-input"]')).toHaveAttribute('data-placeholder', 'Add Body');
     
     // Check if form fields are empty
     await expect(page.locator('[data-testid="title-input"]')).toHaveValue('');
-    await expect(page.locator('[data-testid="body-input"]')).toHaveValue('');
+    expect(await page.locator('[data-testid="body-input"]').innerText()).toBe('');
   });
 
   test('should add child node when save button is clicked', async ({ page }) => {
@@ -85,7 +85,7 @@ test.describe('Add Node E2E Tests', () => {
     expect(finalNodeCount).toBe(1); // Should only have initial root node
     
     await expect(page.locator('[data-testid="title-input"]')).toHaveAttribute('placeholder', 'Edit title');
-    await expect(page.locator('[data-testid="body-input"]')).toHaveAttribute('placeholder', 'Edit body');
+    await expect(page.locator('[data-testid="body-input"]')).toHaveAttribute('data-placeholder', 'Edit body');
     
     const titleValue = await page.locator('[data-testid="title-input"]').inputValue();
     expect(titleValue).toBe('Root');

@@ -44,7 +44,7 @@ test.describe('Mind Map E2E Tests', () => {
     
     // Click back on the node to reopen the edit form and verify the body was saved
     await page.locator('.node-group:has-text("Root")').click({ timeout: 500 });
-    const updatedNodeText = await page.locator('[data-testid="body-input"]').inputValue();
+    const updatedNodeText = await page.locator('[data-testid="body-input"]').innerText();
     expect(updatedNodeText).toBe('New Body');
   });
 
@@ -88,7 +88,7 @@ test.describe('Mind Map E2E Tests', () => {
     
     // Now go back to child and verify it wasn't affected
     await page.locator(`.node-group:has-text("${childBodyText}")`).click({ timeout: 500 });
-    const childTitleText = await page.locator('[data-testid="body-input"]').inputValue();
+    const childTitleText = await page.locator('[data-testid="body-input"]').innerText();
     expect(childTitleText).toBe(childBodyText); // Child should be unchanged
   });
 });
