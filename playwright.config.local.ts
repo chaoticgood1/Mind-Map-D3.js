@@ -26,7 +26,7 @@ export default defineConfig({
         launchOptions: {
           headless: false, // Show browser window
           args: ['--window-position=100,100'], // Force position on monitor 1
-          slowMo: 300, // Add 100ms delay between actions
+          slowMo: 0, // Add 100ms delay between actions
         },
       },
     }
