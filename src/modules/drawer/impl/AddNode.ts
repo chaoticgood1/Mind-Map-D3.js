@@ -20,11 +20,18 @@ function handleKeyDown(event: KeyboardEvent) {
     event.preventDefault();
     save();
   }
+
+  if (event.key === 'Escape' && get(selectedNode) && get(currentMode) === Mode.Add) {
+    event.preventDefault();
+    currentMode.set(Mode.Edit);
+  }
 }
 
 function handleClick(event: MouseEvent) {
   const saveButton = document.getElementById('save-button');
-  if (saveButton && event.target && saveButton.contains(event.target as Node)) {
+  if (saveButton && event.target && 
+    saveButton.contains(event.target as Node) && 
+    get(currentMode) === Mode.Add) {
     save();
   }
 }
@@ -71,13 +78,6 @@ function save() {
     body.set('');
     titlePlaceholder.set('Add Title');
     bodyPlaceholder.set('Add Body');
-    currentMode.set(Mode.Add);
-  } else {
-    // If not in Add mode (i.e., in Edit mode), start add process
-    titlePlaceholder.set('Add Title');
-    bodyPlaceholder.set('Add Body');
-    title.set('');
-    body.set('');
     currentMode.set(Mode.Add);
   }
 }

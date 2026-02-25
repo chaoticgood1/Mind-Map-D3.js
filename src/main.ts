@@ -230,12 +230,8 @@ if (document.readyState === 'loading') {
 
 
 
-let isDataUpdating = false;
-
 selectedNode.subscribe((value: any | undefined) => {
-  if (value && !isDataUpdating) {
-    update(svg, root, gNode, gLink, value);
-  }
+  update(svg, root, gNode, gLink, value);
 });
 
 window.addEventListener('update-tree', () => {
