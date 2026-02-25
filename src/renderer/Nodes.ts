@@ -19,6 +19,7 @@ export function initNode(
     .enter()
     .append("g")
     .attr("class", "node-group")
+    .attr("data-node-id", d => d.id || '')
     .attr("transform", _d => `translate(${source?.y0 ?? source?.y ?? 0},${source?.x0 ?? source?.x ?? 0})`)
     .attr("fill-opacity", 0)
     

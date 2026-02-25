@@ -13,8 +13,6 @@ export function init() {
 }
 
 function pasteNode() {
-  
-
   const selected = get(selectedNode);
   const copied = get(copiedData);
 
