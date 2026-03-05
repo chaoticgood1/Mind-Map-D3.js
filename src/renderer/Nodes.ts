@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { HierarchyNode } from '../Data';
-import { selectedNode } from '../registry';
+import { selectedNode, nodeData } from '../registry';
 import { get } from 'svelte/store';
 import { DragNode } from '../modules/DragNode';
 
@@ -55,12 +55,12 @@ export function initNode(
       // Prevent click if this was part of a drag operation
       if (event.defaultPrevented) return;
 
-      d.children = d.children ? undefined : d._children;
+      d.data.isCollapsed = !d.data.isCollapsed;
+      d.children = d.data.isCollapsed ? undefined : d._children;
       selectedNode.set(d);
-      const editEvent = new CustomEvent('start-edit');
-      window.dispatchEvent(editEvent);
+
+      nodeData.update(data => data.map(n => n.id === d.data.id ? { ...n, isCollapsed: d.data.isCollapsed } : n));
     })
-  
   
   nodeEnter.append("text")
     .attr("x", 10)

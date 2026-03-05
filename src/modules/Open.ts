@@ -62,13 +62,13 @@ function updateNodeData(content: string) {
 }
 
 function convertToDataFormat(data: any): Data[] {
-  // If it's already in the correct format, return as-is
+  // If it's already in the correct format, return as-is with isCollapsed ensured
   if (Array.isArray(data) && data.every(node => 
     node.id && 
     typeof node.id === 'string' &&
     Array.isArray(node.childrenIds)
   )) {
-    return data;
+    return data.map(node => ({ ...node, isCollapsed: node.isCollapsed ?? false }));
   }
 
   // Handle hierarchical tree structure (nested children)
@@ -97,7 +97,8 @@ function convertHierarchicalToFlat(nodes: any[]): Data[] {
       id: nodeId,
       label: node.label || node.name || node.title || `Node ${nodeId}`,
       body: node.body || node.description || '',
-      childrenIds: []
+      childrenIds: [],
+      isCollapsed: node.isCollapsed
     };
 
     flatList.push(dataNode);

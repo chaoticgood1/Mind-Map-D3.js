@@ -16,7 +16,7 @@ const marginTop = 20;
 const marginBottom = 20;
 const marginLeft = 80;
 const verticalSpacing = 150;
-const horizontalSpacing = 20;
+const horizontalSpacing = 30;
 const duration = 250;
 
 
@@ -120,6 +120,7 @@ function initRoot(flatData: Data[]) {
 
   root.descendants().forEach((d: any) => {
     d._children = d.children;
+    d.children = d.data.isCollapsed ? undefined : d._children;
   });
 
   return root;

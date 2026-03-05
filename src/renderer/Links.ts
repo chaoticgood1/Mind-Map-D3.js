@@ -1,6 +1,7 @@
 import { Data, HierarchyNode } from "../Data";
 import * as d3 from 'd3';
 
+const TRANSITION_DURATION = 250;
 
 export function init(
   root: HierarchyNode,
@@ -20,12 +21,12 @@ export function init(
       return diagonal({ source: o, target: o });
     });
 
-  link.merge(linkEnter).transition().duration(750).attr("d", diagonal as any);
+  link.merge(linkEnter).transition().duration(TRANSITION_DURATION).attr("d", diagonal as any);
 
   link
     .exit()
     .transition()
-    .duration(750)
+    .duration(TRANSITION_DURATION)
     .remove()
     .attr("d", _d => {
       const sourceX = source?.x ?? 0;
