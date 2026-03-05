@@ -5,7 +5,7 @@ export class Data {
   label: string = '';
   body: string = '';
   childrenIds: string[] = [];
-  isCollapsed: boolean = false;
+  isFolded: boolean = false;
 }
 
 // This interface represents the node after D3 processes it

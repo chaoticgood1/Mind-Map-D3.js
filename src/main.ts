@@ -120,7 +120,7 @@ function initRoot(flatData: Data[]) {
 
   root.descendants().forEach((d: any) => {
     d._children = d.children;
-    d.children = d.data.isCollapsed ? undefined : d._children;
+    d.children = d.data.isFolded ? undefined : d._children;
   });
 
   return root;

@@ -55,11 +55,11 @@ export function initNode(
       // Prevent click if this was part of a drag operation
       if (event.defaultPrevented) return;
 
-      d.data.isCollapsed = !d.data.isCollapsed;
-      d.children = d.data.isCollapsed ? undefined : d._children;
+      d.data.isFolded = !d.data.isFolded;
+      d.children = d.data.isFolded ? undefined : d._children;
       selectedNode.set(d);
 
-      nodeData.update(data => data.map(n => n.id === d.data.id ? { ...n, isCollapsed: d.data.isCollapsed } : n));
+      nodeData.update(data => data.map(n => n.id === d.data.id ? { ...n, isFolded: d.data.isFolded } : n));
     })
   
   nodeEnter.append("text")
@@ -115,7 +115,7 @@ export function initNode(
       const value = get(selectedNode);
       if (value === d)
         return "#00FF00";
-      return d.data.isCollapsed && d._children ? "#0000FF" : "#FFFFFF";
+      return d.data.isFolded && d._children ? "#0000FF" : "#FFFFFF";
     });
 
   node
