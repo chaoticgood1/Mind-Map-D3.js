@@ -115,7 +115,7 @@ export function initNode(
       const value = get(selectedNode);
       if (value === d)
         return "#00FF00";
-      return "#FFFFFF";
+      return d.data.isCollapsed && d._children ? "#0000FF" : "#FFFFFF";
     });
 
   node

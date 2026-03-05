@@ -34,6 +34,8 @@ export const DragNode = {
         d.dragStartX = d.x;
         d.dragStartY = d.y;
       }
+
+      (d as any).startedDragging = false;
     })
     .on("drag", function(event, d) {
       const svg = d3.select('svg');
@@ -57,6 +59,11 @@ export const DragNode = {
       const adjustedX = (mousePos[0] - translateX) / scale;
       const adjustedY = (mousePos[1] - translateY) / scale;
       
+      const distance = Math.sqrt((adjustedX - d.dragStartX!) ** 2 + (adjustedY - d.dragStartY!) ** 2);
+      if (distance < 3) return;
+      
+      (d as any).startedDragging = true;
+      
       d.x = adjustedX;
       d.y = adjustedY;
       
@@ -77,8 +84,7 @@ export const DragNode = {
     .on("end", function(event, d) {
       d3.select(this).style("cursor", "grab");
       
-      const wasMoved = (d.dragStartX !== undefined && d.dragStartY !== undefined && 
-                       (d.x !== d.dragStartX || d.y !== d.dragStartY));
+      const wasMoved = (d as any).startedDragging;
       
       if (!wasMoved) {
         return;
